@@ -1,0 +1,16 @@
+training:
+  num_episodes: 2000
+  max_steps_per_episode: 100
+  log_interval: 10
+
+agent:
+  gamma: 0.99
+  epsilon_start: 1.0
+  epsilon_end: 0.01
+  epsilon_decay: 0.995
+  learning_rate: 0.0005
+  target_update_freq: 10 # in episodes
+
+memory:
+  buffer_size: 10000
+  batch_size: 64

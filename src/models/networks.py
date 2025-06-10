@@ -38,8 +38,8 @@ class DQN(nn.Module):
     def save(self, file_name: str ='model.pth', folder_path: str = "../../results/models/"):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
-        file_name = os.path.join(folder_path, file_name)
-        torch.save(self.state_dict(), file_name)
+        full_path = os.path.join(folder_path, file_name)
+        torch.save(self.state_dict(), full_path)
 
 
     def load(self, file_path: str):
