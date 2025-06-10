@@ -1,19 +1,23 @@
 from collections import deque
 import numpy as np
 from tqdm import tqdm
+import time
 
 class Trainer:
 
-    def __init__(self, agent, env, config: dict):
+    def __init__(self, agent, env, config: dict, render_mode: str = None):
         self.agent = agent
         self.env = env
         self.config = config
+        self.render_mode = render_mode
 
         self.num_episodes = config['training']['num_episodes']
         self.max_steps_per_episode = config['training']['max_steps_per_episode']
         self.log_interval = config['training']['log_interval']
         self.target_update_freq = config['agent']['target_update_freq']
         self.save_interval = config['training']['save_interval']
+
+        self.render_speed = config['training']['speed']
 
         #for logging and tracking
         self.scores = []
@@ -25,6 +29,10 @@ class Trainer:
         for i_episode in tqdm(range(1, self.num_episodes+1), desc="Training Episodes"):
             state, _ = self.env.reset()
             score = 0
+
+            if self.render_mode == 'human':
+                self.env.render()
+                time.sleep(1/self.render_speed)
 
             for _ in range(self.max_steps_per_episode):
                 action = self.agent.act(state)
