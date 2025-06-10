@@ -10,7 +10,7 @@ from src.utils.replay_buffer import ReplayBuffer, Experience
 
 class DDQNAgent:
 
-    def __init__(self, state_size: int, action_size: int, config):
+    def __init__(self, state_size: int, action_size: int, config: dict):
         self.state_size = state_size
         self.action_size = action_size
         self.config = config
@@ -99,7 +99,7 @@ class DDQNAgent:
         self.optimizer.step() #update weights
 
 
-    def save(self, file_name: str = "model.pth", folder_path: str = "../../results/models"):
+    def save(self, file_name: str = "policy.pth", folder_path: str = "../../results/models"):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         self.policy_net.save(file_name, folder_path)
