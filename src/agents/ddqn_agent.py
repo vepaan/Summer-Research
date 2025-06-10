@@ -32,12 +32,15 @@ class DDQNAgent:
         self.steps_done = 0
 
     
-    def act(self, state: np.ndarray) -> int:
+    def act(self, state: np.ndarray, evaluation_mode: bool = False) -> int:
         #choose action based on epsilon greedy policy
-        eps_start = self.config['agent']['epsilon_start']
-        eps_end = self.config['agent']['epsilon_end']
-        eps_decay = self.config['agent']['epsilon_decay']
-        epsilon = eps_end + (eps_start-eps_end) * np.exp(-1. * self.steps_done / eps_decay)
+        if evaluation_mode:
+            epsilon = -1 #no exploration
+        else:
+            eps_start = self.config['agent']['epsilon_start']
+            eps_end = self.config['agent']['epsilon_end']
+            eps_decay = self.config['agent']['epsilon_decay']
+            epsilon = eps_end + (eps_start-eps_end) * np.exp(-1. * self.steps_done / eps_decay)
 
         self.steps_done += 1
 
