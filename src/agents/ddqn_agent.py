@@ -6,7 +6,7 @@ import random
 import os
 
 from src.models.networks import DQN
-from src.utils.replay_buffer import ReplayBuffer
+from src.utils.replay_buffer import ReplayBuffer, Experience
 
 class DDQNAgent:
 
