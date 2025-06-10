@@ -62,13 +62,46 @@ class DDQNAgent:
     def learn(self):
         #samples batch from replay buffer and performs one learning step
         #the dqn optimization and loss is done here
-        pass
+        batch_size = self.config['memory']['batch_size']
+        if len(self.memory) < batch_size:
+            return
+        
+        experiences = self.memory.sample(batch_size)
+        batch = Experience(*zip(*experiences))
+
+        #we need to convert the batch data to tensors on correct device
+        #we unsqueeze the done and reward tensors to [batch_size, 1]
+        state_batch = torch.tensor(np.array(batch.state), dtype=torch.float32, device=self.device)
+        action_batch = torch.tensor(batch.action, dtype=torch.long, device=self.device).unsqueeze(1)
+        reward_batch = torch.tensor(batch.reward, dtype=torch.float32, device=self.device).unsqueeze(1)
+        next_state_batch = torch.tensor(np.array(batch.next_state), dtype=torch.float32, device=self.device)
+        done_batch = torch.tensor(batch.done, dtype=torch.float32, device=self.device).unsqueeze(1)
+
+        #calculate q values for actions we actually took
+        curr_q_values = self.policy_net(state_batch).gather(1, action_batch)
+
+        #calculate target q values using DDQN
+        with torch.no_grad():
+            #select best action for next state
+            next_actions = self.policy_net(next_state_batch).argmax(dim=1).unsqueeze(1)
+            next_q_values = self.action_net(next_state_batch).gather(1, next_actions)
+            #when done = 1, future value is 0
+            target_q_values = reward_batch + (self.config['agent']['gamma'] * next_q_values * (1-done_batch))
+
+        loss = F.mse_loss(curr_q_values, target_q_values)
+        #clear prev gradients
+        self.optimizer.zero_grad()
+        loss.backward()
+
+        #optinally clamp gradients to prevent explosion
+        torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
+
+        self.optimizer.step() #update weights
 
 
     def save(self, file_name: str = "model.pth", folder_path: str = "../../results/models"):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
-        full_path = os.path.join(folder_path, file_name)
-        self.policy_net.save(full_path)
+        self.policy_net.save(file_name, folder_path)
 
         
