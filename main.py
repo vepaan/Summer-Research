@@ -10,8 +10,7 @@ def train(config, render_mode=None):
     print("---Starting Training---")
     
     env = FrozenLake(
-        map_size=config['env']['map_size'],
-        is_slippery=config['env']['is_slippery'],
+        config=config,
         render_mode=render_mode
     )
 
@@ -32,12 +31,12 @@ def test(config, model_path: str):
     print("---Starting Testing---")
 
     env = FrozenLake(
-        map_size=config['env']['map_size'],
-        is_slippery=config['env']['is_slippery'],
+        config=config,
         render_mode='human'
     )
-
+    
     agent = DDQNAgent(env.observation_space.shape[0], env.action_space.n, config)
+
     try:
         agent.policy_net.load(model_path)
         print(f"Model loaded from path")
@@ -73,7 +72,7 @@ def test(config, model_path: str):
     env.close()
 
 if __name__ == "__main__":
-    MODE = 'train'
+    MODE = 'test'
     RENDER_TRAINING = False
     CONFIG_PATH = 'configs/frozen_lake.yaml'
     MODEL_PATH = 'results/models/policy.pth'

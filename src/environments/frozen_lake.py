@@ -6,15 +6,16 @@ import yaml
 
 class FrozenLake(gym.Wrapper):
 
-    def __init__(self, map_size: int = 4, is_slippery: bool = False, render_mode: str = None):
-        self.map_size = map_size
-        self.is_slippery = is_slippery
+    def __init__(self, config: dict, render_mode: str = None):
+        self.map_size = config['env']['map_size']
+        self.is_slippery = config['env']['is_slippery']
         self.render_md = render_mode
+        self.config = config
 
         env = gym.make(
             'FrozenLake-v1',
-            desc=generate_random_map(size=map_size),
-            is_slippery=is_slippery,
+            desc=generate_random_map(size=self.map_size),
+            is_slippery=self.is_slippery,
             render_mode=render_mode
         )
 
@@ -60,18 +61,18 @@ class FrozenLake(gym.Wrapper):
         if terminated and reward == 1.0:
             #print("reached goal")
             #agent reached goal
-            pass
+            reward = self.config['reward']['goal']
         elif terminated and reward == 0.0:
             #print("fell into hole")
             #fell into hole, so strong negative reward
-            reward = -1.0
+            reward = self.config['reward']['hole']
         elif hit_wall:
             #print("hit wall")
-            reward = -0.1
+            reward = self.config['reward']['wall']
         elif not terminated and not truncated:
             #print("moving")
             #small negative reward if agent just moves around ice
-            reward = -0.01
+            reward = self.config['reward']['ice']
             
         self.prev_state = observation
         return self._to_one_hot(observation), reward, terminated, truncated, info

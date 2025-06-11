@@ -17,10 +17,14 @@ env:
 memory:
   batch_size: 64
   buffer_size: 10000
-reward: null
+reward:
+  goal: 1.0
+  hole: -1.0
+  ice: -0.01
+  wall: -0.1
 training:
-  log_interval: 10
-  max_steps_per_episode: 5
+  log_interval: 100
+  max_steps_per_episode: 100
   num_episodes: 100
   save_interval: 500
   speed: 10000000

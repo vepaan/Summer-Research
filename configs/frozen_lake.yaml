@@ -1,0 +1,29 @@
+training:
+  log_interval: 100
+  max_steps_per_episode: 100
+  num_episodes: 100
+  save_interval: 500
+  speed: 10000000
+
+reward:
+  goal: 1.0
+  hole: -1.0
+  wall: -0.1
+  ice: -0.01
+
+agent:
+  epsilon_decay: 0.995
+  epsilon_end: 0.01
+  epsilon_start: 1.0
+  gamma: 0.99
+  hidden_size: 128
+  learning_rate: 0.0005
+  target_update_freq: 10
+
+env:
+  is_slippery: false
+  map_size: 4
+
+memory:
+  batch_size: 64
+  buffer_size: 10000
