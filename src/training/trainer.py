@@ -1,8 +1,11 @@
 from collections import deque
 import numpy as np
 from tqdm import tqdm
-from src.utils.plotter import LivePlotter, plot_rewards
 import time
+import os
+
+from src.utils.plotter import LivePlotter, plot_rewards
+from src.utils.logger import Log
 
 class Trainer:
 
@@ -30,14 +33,14 @@ class Trainer:
             self.live_plotter = LivePlotter()
 
 
-    def _plot(self, filename: str):
+    def _plot(self, file_name: str, folder_path: str):
         if self.live_plotter:
-            self.live_plotter.save(filename)
+            self.live_plotter.save(folder_path=folder_path, file_name=file_name)
         else:
-            plot_rewards(self.scores, filename)
+            plot_rewards(self.scores, folder_path, file_name)
 
     
-    def run(self, policy_path: str, policy_name: str, plot_path: str):
+    def run(self, policy_path: str, policy_name: str, plot_path: str, plot_name: str, report_path: str, report_name: str):
         #we use tqdm for a clean progress bar over episodes
         for i_episode in tqdm(range(1, self.num_episodes+1), desc="Training Episodes"):
             state, info = self.env.reset(shuffle_map=True)
@@ -81,6 +84,7 @@ class Trainer:
 
         print("\nTraining Finished")
         print(f'Final average score of last 100 eps: {np.mean(self.scores_window):.2f}')
+
         self.agent.save(file_name=policy_name, folder_path=policy_path)
-        self._plot(filename=plot_path)
-        
+        self._plot(file_name=plot_name, folder_path=plot_path)
+        Log(log_dir=report_path, log_name=report_name, config=self.config)

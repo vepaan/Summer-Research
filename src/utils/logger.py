@@ -1,26 +1,26 @@
 import os
 import yaml
 
-class TrainingLogger:
 
-    def __init__(self, log_dir: str, log_name: str, config: dict):
-        self.log_name = log_name
-        self.log_dir = os.path.join(log_dir, log_name)
-        os.makedirs(self.log_dir, exist_ok=True)
+def Log(log_dir: str, log_name: str, config: dict):
+    log_name = log_name
+    log_dir = os.path.join(log_dir, log_name)
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
 
-        self.report_path = os.path.join(self.log_dir, f"report_{self.log_name}.md")
+    report_path = os.path.join(log_dir, log_name)
 
-        with open(self.report_path, 'w') as f:
-            f.write(f"# Training Run Report: {self.run_name}\n")
-            f.write("="*40 + "\n\n")
+    with open(report_path, 'w') as f:
+        f.write(f"# Training Run Report: {log_name}\n")
+        f.write("="*40 + "\n\n")
 
-        if config:
-            self.log_hyperparams(config)
+    if config:
+        log_hyperparams(report_path, config)
 
-    
-    def log_hyperparams(self, config: dict):
-        with open(self.report_path, 'a') as f:
-            f.write("## 1. Hyperparameters\n")
-            f.write("```yaml\n")
-            yaml.dump(config, f, default_flow_style=False)
-            f.write("```\n\n")
+
+def log_hyperparams(report_path: str, config: dict):
+    with open(report_path, 'a') as f:
+        f.write("## 1. Hyperparameters\n")
+        f.write("```yaml\n")
+        yaml.dump(config, f, default_flow_style=False)
+        f.write("```\n\n")

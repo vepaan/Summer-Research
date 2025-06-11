@@ -21,7 +21,10 @@ def train(config, render_mode=None):
     trainer.run(
         policy_path="results/models",
         policy_name="policy.pth",
-        plot_path="results/plots/onehot.png"
+        plot_path="results/plots",
+        plot_name="onehot.png",
+        report_path="results/logs",
+        report_name="onehot.md"
     )
     env.close()
 

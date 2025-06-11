@@ -45,19 +45,19 @@ class LivePlotter:
         plt.pause(0.001)
 
 
-    def save(self, filename: str):
-        plot_dir = os.path.dirname(filename)
+    def save(self, folder_path: str, file_name: str):
+        plot_dir = os.path.dirname(folder_path)
         if not os.path.exists(plot_dir):
             os.makedirs(plot_dir)
 
-        self.fig.savefig(filename)
+        self.fig.savefig(file_name)
         plt.close(self.fig)
         plt.ioff()
         print("\nPlot saved")
         
 
 
-def plot_rewards(scores: list, filename: str):
+def plot_rewards(scores: list, folder_path: str, file_name: str):
     #plot per ep scores and a 100 episode rolling avg
     print(f"\nPlotting the rewards against eps")
 
@@ -75,11 +75,10 @@ def plot_rewards(scores: list, filename: str):
     plt.ylabel('Total Reward')
     plt.legend()
 
-    plot_dir = os.path.dirname(filename)
-    if not os.path.exists(plot_dir):
-        os.makedirs(plot_dir)
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
 
-    plt.savefig(filename)
+    plt.savefig(os.path.join(folder_path, file_name))
     plt.close()
     print("\nPlot saved")
 
