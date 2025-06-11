@@ -26,11 +26,31 @@ class FrozenLake(gym.Wrapper):
         self.observation_space = spaces.Box(low=0, high=1, shape=(self.state_size,), dtype=np.float32)
         self.prev_state = None
         
+
     def _to_one_hot(self, s: int) -> np.ndarray:
         one_hot = np.zeros(self.state_size, dtype=np.float32)
         one_hot[s] = 1.0
         return one_hot
     
+
+    def _full_state(self, s: int) -> np.ndarray:
+        board = np.zeros((self.map_size, self.map_size), dtype=np.float32)
+
+        for i in range(self.map_size):
+            for j in range(self.map_size):
+                tile = self.env.unwrapped.desc[i][j]
+                if tile == b'H':
+                    board[i, j] = self.config['env']['hole']
+                elif tile == b'G':
+                    board[i, j] = self.config['env']['goal']
+                else:
+                    board[i, j] = self.config['env']['ice']
+
+        row, col = divmod(s, self.map_size)
+        board[row, col] = 2.0
+        return board.flatten()
+        
+
     def _create_new_env(self):
         new_env = gym.make(
             'FrozenLake-v1',
@@ -50,8 +70,9 @@ class FrozenLake(gym.Wrapper):
             self._create_new_env()
         observation, info = self.env.reset(**kwargs)
         self.prev_state = observation
-        return self._to_one_hot(observation), info
+        return self._full_state(observation), info
     
+
     def step(self, action):
         observation, reward, terminated, truncated, info = self.env.step(action)
         old_state = self.prev_state
@@ -75,6 +96,6 @@ class FrozenLake(gym.Wrapper):
             reward = self.config['reward']['ice']
             
         self.prev_state = observation
-        return self._to_one_hot(observation), reward, terminated, truncated, info
+        return self._full_state(observation), reward, terminated, truncated, info
         
 

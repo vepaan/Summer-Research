@@ -85,7 +85,7 @@ def test(config, model_path: str):
     env.close()
 
 if __name__ == "__main__":
-    MODE = 'test'
+    MODE = 'train'
     RENDER_TRAINING = False
     SHUFFLE_TRAIN_MAP = True
     SHUFFLE_TEST_MAP = True

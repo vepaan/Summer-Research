@@ -1,7 +1,7 @@
 training:
   log_interval: 100
-  max_steps_per_episode: 30
-  num_episodes: 500
+  max_steps_per_episode: 3
+  num_episodes: 1
   save_interval: 500
   speed: 10000000
 
@@ -23,6 +23,9 @@ agent:
 env:
   is_slippery: false
   map_size: 4
+  goal: 1
+  hole: -1
+  ice: 0
 
 memory:
   batch_size: 64
