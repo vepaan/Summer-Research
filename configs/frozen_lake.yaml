@@ -10,7 +10,7 @@ testing:
   speed: 10000000
 
 reward:
-  goal: 5.0
+  goal: 1.0
   hole: -1.0
   wall: -0.3
   ice: 0

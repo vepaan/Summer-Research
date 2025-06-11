@@ -6,7 +6,7 @@ import os
 class MLP(nn.Module):
 
     def __init__(self, input_size: int, hidden_size: int, output_size: int, device: str = 'cpu'):
-        super(DQN, self).__init__()
+        super(MLP, self).__init__()
 
         self.device = torch.device(device)
 
@@ -49,6 +49,9 @@ class MLP(nn.Module):
 
 class CNN(nn.Module):
 
-    def __init__(self):
-        pass
+    def __init__(self, input_size: int, hidden_size: int):
+        super(CNN, self).__init__()
+        
+
+
 
