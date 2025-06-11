@@ -2,14 +2,14 @@ import yaml
 import numpy as np
 import time
 
-from src.environments.frozen_lake import create_frozen_lake
+from src.environments.frozen_lake import FrozenLake
 from src.agents.ddqn_agent import DDQNAgent
 from src.training.trainer import Trainer
 
 def train(config, render_mode=None):
     print("---Starting Training---")
     
-    env = create_frozen_lake(
+    env = FrozenLake(
         map_size=config['env']['map_size'],
         is_slippery=config['env']['is_slippery'],
         render_mode=render_mode
@@ -27,7 +27,7 @@ def train(config, render_mode=None):
 def test(config, model_path: str):
     print("---Starting Testing---")
 
-    env = create_frozen_lake(
+    env = FrozenLake(
         map_size=config['env']['map_size'],
         is_slippery=config['env']['is_slippery'],
         render_mode='human'
@@ -47,12 +47,7 @@ def test(config, model_path: str):
     total_rewards = []
 
     for i in range(num_test_episodes):
-        env = create_frozen_lake(
-            map_size=config['env']['map_size'],
-            is_slippery=config['env']['is_slippery'],
-            render_mode='human'
-        )
-        state, _ = env.reset()
+        state, _ = env.reset(shuffle_map=True)
         done = False
         episode_reward = 0
         print(f"\n---Starting test episode {i+1}/{num_test_episodes}---")
@@ -75,7 +70,7 @@ def test(config, model_path: str):
 
 if __name__ == "__main__":
     MODE = 'test'
-    RENDER_TRAINING = False
+    RENDER_TRAINING = True
     CONFIG_PATH = 'configs/frozen_lake.yaml'
     MODEL_PATH = 'results/models/policy.pth'
 
