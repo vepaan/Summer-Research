@@ -70,7 +70,7 @@ def test(config, model_path: str):
 
 if __name__ == "__main__":
     MODE = 'test'
-    RENDER_TRAINING = True
+    RENDER_TRAINING = False
     CONFIG_PATH = 'configs/frozen_lake.yaml'
     MODEL_PATH = 'results/models/policy.pth'
 

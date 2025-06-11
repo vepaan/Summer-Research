@@ -27,7 +27,7 @@ class Trainer:
     def run(self, save_path: str, save_name: str):
         #we use tqdm for a clean progress bar over episodes
         for i_episode in tqdm(range(1, self.num_episodes+1), desc="Training Episodes"):
-            state, info = self.env.reset()
+            state, info = self.env.reset(shuffle_map=True)
             score = 0
 
             if self.render_mode == 'human':
