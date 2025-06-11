@@ -47,6 +47,11 @@ def test(config, model_path: str):
     total_rewards = []
 
     for i in range(num_test_episodes):
+        env = create_frozen_lake(
+            map_size=config['env']['map_size'],
+            is_slippery=config['env']['is_slippery'],
+            render_mode='human'
+        )
         state, _ = env.reset()
         done = False
         episode_reward = 0
@@ -71,7 +76,7 @@ def test(config, model_path: str):
 if __name__ == "__main__":
     MODE = 'test'
     RENDER_TRAINING = False
-    CONFIG_PATH = 'configs/frozen_lake_ddqn.yaml'
+    CONFIG_PATH = 'configs/frozen_lake.yaml'
     MODEL_PATH = 'results/models/policy.pth'
 
     with open(CONFIG_PATH, 'r') as f:

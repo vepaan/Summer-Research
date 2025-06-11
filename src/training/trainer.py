@@ -27,7 +27,7 @@ class Trainer:
     def run(self, save_path: str, save_name: str):
         #we use tqdm for a clean progress bar over episodes
         for i_episode in tqdm(range(1, self.num_episodes+1), desc="Training Episodes"):
-            state, _ = self.env.reset()
+            state, info = self.env.reset()
             score = 0
 
             if self.render_mode == 'human':
@@ -36,7 +36,13 @@ class Trainer:
 
             for _ in range(self.max_steps_per_episode):
                 action = self.agent.act(state)
-                next_state, reward, done, _, _ = self.env.step(action)
+                next_state, reward, terminated, truncated, info = self.env.step(action)
+
+                if self.render_mode == 'human':
+                    self.env.render()
+                    time.sleep(1/self.render_speed)
+
+                done = terminated or truncated
                 self.agent.memory.push(state, action, reward, next_state, done)
                 self.agent.learn()
                 state = next_state
