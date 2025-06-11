@@ -1,6 +1,7 @@
 from collections import deque
 import numpy as np
 from tqdm import tqdm
+from src.utils.plotter import LivePlotter, plot_rewards
 import time
 
 class Trainer:
@@ -23,8 +24,20 @@ class Trainer:
         self.scores = []
         self.scores_window = deque(maxlen=100)
 
+        #for plotting
+        self.live_plotter = None
+        if self.render_mode == 'human':
+            self.live_plotter = LivePlotter()
+
+
+    def _plot(self, filename: str):
+        if self.live_plotter:
+            self.live_plotter.save(filename)
+        else:
+            plot_rewards(self.scores, filename)
+
     
-    def run(self, save_path: str, save_name: str):
+    def run(self, policy_path: str, policy_name: str, plot_path: str):
         #we use tqdm for a clean progress bar over episodes
         for i_episode in tqdm(range(1, self.num_episodes+1), desc="Training Episodes"):
             state, info = self.env.reset(shuffle_map=True)
@@ -61,8 +74,13 @@ class Trainer:
             if i_episode % self.target_update_freq == 0:
                 self.agent.update_action_net()
             if i_episode % self.save_interval == 0:
-                self.agent.save(file_name=save_name, folder_path=save_path)
+                self.agent.save(file_name=policy_name, folder_path=policy_path)
+
+            if self.live_plotter:
+                self.live_plotter.update(self.scores)
 
         print("\nTraining Finished")
         print(f'Final average score of last 100 eps: {np.mean(self.scores_window):.2f}')
-        self.agent.save(file_name=save_name, folder_path=save_path)
+        self.agent.save(file_name=policy_name, folder_path=policy_path)
+        self._plot(filename=plot_path)
+        

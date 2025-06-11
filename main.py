@@ -19,8 +19,9 @@ def train(config, render_mode=None):
 
     trainer = Trainer(agent, env, config, render_mode)
     trainer.run(
-        save_path="results/models",
-        save_name="policy.pth"
+        policy_path="results/models",
+        policy_name="policy.pth",
+        plot_path="results/plots/onehot.png"
     )
     env.close()
 
@@ -69,8 +70,8 @@ def test(config, model_path: str):
     env.close()
 
 if __name__ == "__main__":
-    MODE = 'test'
-    RENDER_TRAINING = False
+    MODE = 'train'
+    RENDER_TRAINING = True
     CONFIG_PATH = 'configs/frozen_lake.yaml'
     MODEL_PATH = 'results/models/policy.pth'
 
