@@ -46,7 +46,7 @@ class FrozenLake(gym.Wrapper):
                     board[i, j] = self.config['env']['ice']
 
         row, col = divmod(s, self.map_size)
-        board[row, col] = 2.0
+        board[row, col] = self.config['env']['agent']
         return board.flatten()
         
 

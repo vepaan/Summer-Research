@@ -94,7 +94,7 @@ if __name__ == "__main__":
     MODE = 'test'
 
     RENDER_TRAINING = False
-    RENDER_TESTING = False
+    RENDER_TESTING = True
 
     SHUFFLE_TRAIN_MAP = True
     SHUFFLE_TEST_MAP = True

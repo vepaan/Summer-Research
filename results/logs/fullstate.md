@@ -12,8 +12,9 @@ agent:
   learning_rate: 0.0005
   target_update_freq: 10
 env:
-  goal: 1
-  hole: -1
+  agent: 1
+  goal: 0.7
+  hole: 0
   ice: 0
   is_slippery: false
   map_size: 4
@@ -25,6 +26,9 @@ reward:
   hole: -1.0
   ice: 0
   wall: -0.3
+testing:
+  num_episodes: 10
+  speed: 10000000
 training:
   log_interval: 100
   max_steps_per_episode: 30

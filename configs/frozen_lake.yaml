@@ -27,9 +27,10 @@ agent:
 env:
   is_slippery: false
   map_size: 4
-  goal: 1
-  hole: -1
+  goal: 0.7
+  hole: 0
   ice: 0
+  agent: 1
 
 memory:
   batch_size: 64

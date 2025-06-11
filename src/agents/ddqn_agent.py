@@ -5,7 +5,7 @@ import numpy as np
 import random
 import os
 
-from src.models.networks import DQN
+from src.models.networks import MLP
 from src.utils.replay_buffer import ReplayBuffer, Experience
 
 class DDQNAgent:
@@ -18,10 +18,10 @@ class DDQNAgent:
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print(f"DDQN Agent is using device: {self.device}")
 
-        self.policy_net = DQN(state_size, config['agent']['hidden_size'], action_size, self.device)
+        self.policy_net = MLP(state_size, config['agent']['hidden_size'], action_size, self.device)
         
         #action net's weights are updated less frequently for stability
-        self.action_net = DQN(state_size, config['agent']['hidden_size'], action_size, self.device)
+        self.action_net = MLP(state_size, config['agent']['hidden_size'], action_size, self.device)
         #start with identical weights
         self.action_net.load_state_dict(self.policy_net.state_dict())
         self.action_net.eval()

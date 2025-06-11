@@ -3,7 +3,7 @@ import torch.nn.functional as F
 import torch
 import os
 
-class DQN(nn.Module):
+class MLP(nn.Module):
 
     def __init__(self, input_size: int, hidden_size: int, output_size: int, device: str = 'cpu'):
         super(DQN, self).__init__()
@@ -46,4 +46,9 @@ class DQN(nn.Module):
         self.load_state_dict(torch.load(file_path, map_location=self.device))
         self.eval()
 
+
+class CNN(nn.Module):
+
+    def __init__(self):
+        pass
 
