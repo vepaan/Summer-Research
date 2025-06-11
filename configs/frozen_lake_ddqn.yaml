@@ -16,6 +16,7 @@ agent:
   epsilon_decay: 0.995
   learning_rate: 0.0005
   target_update_freq: 10 # in episodes
+  hidden_size: 128
 
 memory:
   buffer_size: 10000

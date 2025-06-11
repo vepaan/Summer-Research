@@ -1,7 +1,6 @@
 import yaml
-import gymnasium as gym
 import numpy as np
-import os
+import time
 
 from src.environments.frozen_lake import create_frozen_lake
 from src.agents.ddqn_agent import DDQNAgent
@@ -19,7 +18,10 @@ def train(config, render_mode=None):
     agent = DDQNAgent(env.observation_space.shape[0], env.action_space.n, config)
 
     trainer = Trainer(agent, env, config, render_mode)
-    trainer.run()
+    trainer.run(
+        save_path="results/models",
+        save_name="policy.pth"
+    )
     env.close()
 
 def test(config, model_path: str):
@@ -44,4 +46,41 @@ def test(config, model_path: str):
     num_test_episodes = 10
     total_rewards = []
 
+    for i in range(num_test_episodes):
+        state, _ = env.reset()
+        done = False
+        episode_reward = 0
+        print(f"\n---Starting test episode {i+1}/{num_test_episodes}---")
+        env.render()
+        time.sleep(1)
 
+        while not done:
+            action = agent.act(state, evaluation_mode=True)
+            next_state, reward, terminated, truncated, _ = env.step(action)
+            state = next_state
+            episode_reward += reward
+            env.render()
+            time.sleep(1/render_speed)
+            done = terminated or truncated
+
+        total_rewards.append(episode_reward)
+
+    print(f"\nAverage score: {np.mean(total_rewards)}")
+    env.close()
+
+if __name__ == "__main__":
+    MODE = 'test'
+    RENDER_TRAINING = False
+    CONFIG_PATH = 'configs/frozen_lake_ddqn.yaml'
+    MODEL_PATH = 'results/models/policy.pth'
+
+    with open(CONFIG_PATH, 'r') as f:
+        config = yaml.safe_load(f)
+
+    if MODE == 'train':
+        render_mode = 'human' if RENDER_TRAINING else None
+        train(config, render_mode=render_mode)
+    elif MODE == 'test':
+        test(config, model_path=MODEL_PATH)
+    else:
+        print("Invalid mode. Choose 'train' or 'test'")

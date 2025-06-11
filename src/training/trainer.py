@@ -24,7 +24,7 @@ class Trainer:
         self.scores_window = deque(maxlen=100)
 
     
-    def run(self):
+    def run(self, save_path: str, save_name: str):
         #we use tqdm for a clean progress bar over episodes
         for i_episode in tqdm(range(1, self.num_episodes+1), desc="Training Episodes"):
             state, _ = self.env.reset()
@@ -55,8 +55,8 @@ class Trainer:
             if i_episode % self.target_update_freq == 0:
                 self.agent.update_action_net()
             if i_episode % self.save_interval == 0:
-                self.agent.save()
+                self.agent.save(file_name=save_name, folder_path=save_path)
 
         print("\nTraining Finished")
         print(f'Final average score of last 100 eps: {np.mean(self.scores_window):.2f}')
-        self.agent.save()
+        self.agent.save(file_name=save_name, folder_path=save_path)

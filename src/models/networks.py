@@ -35,7 +35,7 @@ class DQN(nn.Module):
         return self.layer3(x)
     
 
-    def save(self, file_name: str ='model.pth', folder_path: str = "../../results/models/"):
+    def save(self, file_name: str, folder_path: str):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         full_path = os.path.join(folder_path, file_name)

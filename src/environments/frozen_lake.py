@@ -25,12 +25,13 @@ class FrozenLake(gym.Wrapper):
         return self._to_one_hot(observation), reward, terminated, truncated, info
         
     
-def create_frozen_lake(map_size: int = 4, is_slippery: bool = False) -> gym.Env:
+def create_frozen_lake(map_size: int = 4, is_slippery: bool = False, render_mode: str = None) -> gym.Env:
     random_map = generate_random_map(size=map_size)
     env = gym.make(
         'FrozenLake-v1',
         desc=random_map,
-        is_slippery=is_slippery
+        is_slippery=is_slippery,
+        render_mode = render_mode
     )
     wrapped_env = FrozenLake(env)
     return wrapped_env

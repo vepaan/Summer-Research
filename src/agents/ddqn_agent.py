@@ -102,9 +102,10 @@ class DDQNAgent:
         self.optimizer.step() #update weights
 
 
-    def save(self, file_name: str = "policy.pth", folder_path: str = "../../results/models"):
+    def save(self, file_name: str, folder_path: str):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
         self.policy_net.save(file_name, folder_path)
+        print(f"\nAgent saved at path: {folder_path} as {file_name}")
 
         
