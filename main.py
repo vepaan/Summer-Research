@@ -30,11 +30,11 @@ def train(config, render_mode=None):
 
     trainer.run(
         policy_path="results/models",
-        policy_name="policy.pth",
+        policy_name=f"{APPROACH}.pth",
         plot_path="results/plots",
-        plot_name="onehot.png",
+        plot_name=f"{APPROACH}.png",
         report_path="results/logs",
-        report_name="onehot.md",
+        report_name=f"{APPROACH}.md",
         shuffle_map=SHUFFLE_TRAIN_MAP
     )
 
@@ -45,7 +45,7 @@ def test(config, model_path: str):
 
     env = FrozenLake(
         config=config,
-        render_mode='human'
+        render_mode='human' if RENDER_TESTING else None
     )
     
     agent = DDQNAgent(env.observation_space.shape[0], env.action_space.n, config)
@@ -58,8 +58,9 @@ def test(config, model_path: str):
         env.close()
         return
     
-    render_speed = config['training']['speed']
-    num_test_episodes = 10
+    render_speed = config['testing']['speed']
+    num_test_episodes = config['testing']['num_episodes']
+    wins = 0
     total_rewards = []
 
     for i in range(num_test_episodes):
@@ -78,19 +79,28 @@ def test(config, model_path: str):
             env.render()
             time.sleep(1/render_speed)
             done = terminated or truncated
+            if reward == config['reward']['goal']:
+                wins += 1
 
         total_rewards.append(episode_reward)
 
     print(f"\nAverage score: {np.mean(total_rewards)}")
+    print("\nGame Win Rate: ", wins / num_test_episodes)
     env.close()
 
 if __name__ == "__main__":
-    MODE = 'train'
+
+    APPROACH = 'fullstate'
+    MODE = 'test'
+
     RENDER_TRAINING = False
+    RENDER_TESTING = False
+
     SHUFFLE_TRAIN_MAP = True
     SHUFFLE_TEST_MAP = True
+
     CONFIG_PATH = 'configs/frozen_lake.yaml'
-    MODEL_PATH = 'results/models/policy.pth'
+    MODEL_PATH = f'results/models/{APPROACH}.pth'
 
     with open(CONFIG_PATH, 'r') as f:
         config = yaml.safe_load(f)

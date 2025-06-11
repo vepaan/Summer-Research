@@ -1,4 +1,4 @@
-# Training Run Report: onehot.md
+# Training Run Report: fullstate.md
 ========================================
 
 ## 1. Hyperparameters
@@ -21,10 +21,10 @@ memory:
   batch_size: 64
   buffer_size: 10000
 reward:
-  goal: 1.0
+  goal: 5.0
   hole: -1.0
-  ice: -0.01
-  wall: -0.1
+  ice: 0
+  wall: -0.3
 training:
   log_interval: 100
   max_steps_per_episode: 30
