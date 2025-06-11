@@ -17,7 +17,7 @@ class LivePlotter:
         self.scores = []
         self.rolling_avg = []
 
-        self.ax.plot([], [], label='Episode Score', color='orange', linewidth=2)
+        self.ax.plot([], [], label='Episode Score', color='orange')
         self.ax.plot([], [], label='100-Ep Rolling Avg', color='gray', alpha=0.4)
 
         self.ax.legend()
@@ -67,7 +67,7 @@ def plot_rewards(scores: list, filename: str):
     scores_series = pd.Series(scores)
     rolling_avg = scores_series.rolling(window=100).mean()
 
-    plt.plot(scores, label='Episode Score', color='orange', linewidth=2)
+    plt.plot(scores, label='Episode Score', color='orange')
     plt.plot(rolling_avg, label='100-Ep Rolling Avg', color='gray', alpha=0.4)
 
     plt.title('Learning Progress')
