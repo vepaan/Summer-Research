@@ -2,6 +2,7 @@ import gymnasium as gym
 from gymnasium.envs.toy_text.frozen_lake import generate_random_map
 from gymnasium import spaces
 import numpy as np
+import yaml
 
 class FrozenLake(gym.Wrapper):
 

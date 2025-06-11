@@ -4,7 +4,6 @@ import yaml
 
 def Log(log_dir: str, log_name: str, config: dict):
     log_name = log_name
-    log_dir = os.path.join(log_dir, log_name)
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
