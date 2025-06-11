@@ -24,8 +24,8 @@ reward:
   wall: -0.1
 training:
   log_interval: 100
-  max_steps_per_episode: 100
-  num_episodes: 100
+  max_steps_per_episode: 30
+  num_episodes: 500
   save_interval: 500
   speed: 10000000
 ```

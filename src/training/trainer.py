@@ -2,14 +2,13 @@ from collections import deque
 import numpy as np
 from tqdm import tqdm
 import time
-import os
 
 from src.utils.plotter import LivePlotter, plot_rewards
 from src.utils.logger import Log
 
 class Trainer:
 
-    def __init__(self, agent, env, config: dict, render_mode: str = None):
+    def __init__(self, agent, env, config: dict, render_mode: str = None, plot: bool = False):
         self.agent = agent
         self.env = env
         self.config = config
@@ -28,9 +27,7 @@ class Trainer:
         self.scores_window = deque(maxlen=100)
 
         #for plotting
-        self.live_plotter = None
-        if self.render_mode == 'human':
-            self.live_plotter = LivePlotter()
+        self.live_plotter = LivePlotter() if plot else None
 
 
     def _plot(self, file_name: str, folder_path: str):
@@ -40,10 +37,10 @@ class Trainer:
             plot_rewards(self.scores, folder_path, file_name)
 
     
-    def run(self, policy_path: str, policy_name: str, plot_path: str, plot_name: str, report_path: str, report_name: str):
+    def run(self, policy_path: str, policy_name: str, plot_path: str, plot_name: str, report_path: str, report_name: str, shuffle_map: bool = False):
         #we use tqdm for a clean progress bar over episodes
         for i_episode in tqdm(range(1, self.num_episodes+1), desc="Training Episodes"):
-            state, info = self.env.reset(shuffle_map=True)
+            state, info = self.env.reset(shuffle_map=shuffle_map)
             score = 0
 
             if self.render_mode == 'human':
