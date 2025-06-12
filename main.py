@@ -16,7 +16,7 @@ def train(config, render_mode=None):
 
     agent = DDQNAgent(
         state_size=env.observation_space.shape[0], 
-        action_size= env.action_space.n, 
+        action_size=env.action_space.n, 
         config=config
     )
 
