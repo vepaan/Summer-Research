@@ -37,7 +37,7 @@ class Trainer:
             plot_rewards(self.scores, folder_path, file_name)
 
     
-    def run(self, policy_path: str, policy_name: str, plot_path: str, plot_name: str, report_path: str, report_name: str, shuffle_map: bool = False):
+    def run(self, policy_path: str = None, policy_name: str = None, plot_path: str = None, plot_name: str = None, report_path: str = None, report_name: str = None, shuffle_map: bool = False):
         #we use tqdm for a clean progress bar over episodes
         for i_episode in tqdm(range(1, self.num_episodes+1), desc="Training Episodes"):
             state, info = self.env.reset(shuffle_map=shuffle_map)
@@ -74,7 +74,8 @@ class Trainer:
             if i_episode % self.target_update_freq == 0:
                 self.agent.update_action_net()
             if i_episode % self.save_interval == 0:
-                self.agent.save(file_name=policy_name, folder_path=policy_path)
+                if policy_name is not None and policy_path is not None:
+                    self.agent.save(file_name=policy_name, folder_path=policy_path)
 
             if self.live_plotter:
                 self.live_plotter.update(self.scores)
@@ -82,6 +83,11 @@ class Trainer:
         print("\nTraining Finished")
         print(f'Final average score of last 100 eps: {np.mean(self.scores_window):.2f}')
 
-        self.agent.save(file_name=policy_name, folder_path=policy_path)
-        self._plot(file_name=plot_name, folder_path=plot_path)
-        Log(log_dir=report_path, log_name=report_name, config=self.config)
+        if policy_name is not None and policy_path is not None:
+            self.agent.save(file_name=policy_name, folder_path=policy_path)
+        
+        if plot_name is not None and plot_path is not None:
+            self._plot(file_name=plot_name, folder_path=plot_path)
+        
+        if report_name is not None and report_path is not None:
+            Log(log_dir=report_path, log_name=report_name, config=self.config)

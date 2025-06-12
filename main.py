@@ -1,6 +1,7 @@
 import yaml
 import numpy as np
 import time
+from tqdm import tqdm
 
 from src.environments.frozen_lake import FrozenLake
 from src.agents.ddqn_agent import DDQNAgent
@@ -63,21 +64,25 @@ def test(config, model_path: str):
     wins = 0
     total_rewards = []
 
-    for i in range(num_test_episodes):
+    for _ in tqdm(range(num_test_episodes), desc="Testing Episodes"):
         state, _ = env.reset(shuffle_map=SHUFFLE_TEST_MAP)
         done = False
         episode_reward = 0
-        print(f"\n---Starting test episode {i+1}/{num_test_episodes}---")
-        env.render()
-        time.sleep(1)
+        
+        if RENDER_TESTING:
+            env.render()
+            time.sleep(1)
 
         while not done:
             action = agent.act(state, evaluation_mode=True)
             next_state, reward, terminated, truncated, _ = env.step(action)
             state = next_state
             episode_reward += reward
-            env.render()
-            time.sleep(1/render_speed)
+
+            if RENDER_TESTING:
+                env.render()
+                time.sleep(1/render_speed)
+
             done = terminated or truncated
             if reward == config['reward']['goal']:
                 wins += 1
