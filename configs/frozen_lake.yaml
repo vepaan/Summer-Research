@@ -13,7 +13,7 @@ reward:
   goal: 1.0
   hole: 0
   wall: -0.1
-  ice: -0.01
+  ice: -0.05
 
 agent:
   model_type: CNN
