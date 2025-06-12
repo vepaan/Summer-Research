@@ -32,16 +32,16 @@ memory:
   buffer_size: 10000
 reward:
   goal: 1.0
-  hole: -1.0
-  ice: 0
-  wall: -0.3
+  hole: 0
+  ice: -0.05
+  wall: -0.1
 testing:
-  num_episodes: 10
+  num_episodes: 10000
   speed: 10000000
 training:
   log_interval: 100
-  max_steps_per_episode: 30
-  num_episodes: 1000
+  max_steps_per_episode: 200
+  num_episodes: 4000
   save_interval: 500
   speed: 10000000
 ```
