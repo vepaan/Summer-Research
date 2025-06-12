@@ -1,4 +1,4 @@
-# Training Run Report: cnn.md
+# Training Run Report: cnn2.md
 ========================================
 
 ## 1. Hyperparameters
@@ -33,7 +33,7 @@ memory:
 reward:
   goal: 1.0
   hole: 0
-  ice: 0
+  ice: -0.01
   wall: -0.1
 testing:
   num_episodes: 1000
