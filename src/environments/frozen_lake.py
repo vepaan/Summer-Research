@@ -21,8 +21,15 @@ class FrozenLake(gym.Wrapper):
         super().__init__(env)
         self.env = env
         self.state_size = self.observation_space.n
-        #overwriting original state with a box space for one hot vector
-        self.observation_space = spaces.Box(low=0, high=1, shape=(self.state_size,), dtype=np.float32)
+
+        #overwriting original state with a box space
+        if self.config['agent']['model_type'] == 'MLP':
+            self.observation_space = spaces.Box(low=0, high=1, shape=(self.state_size,), dtype=np.float32)
+        elif self.config['agent']['model_type'] == 'CNN':
+            self.observation_space = spaces.Box(low=0, high=1, shape=(4, self.map_size, self.map_size), dtype=np.float32)
+        else:
+            raise ValueError("Unknown model type in yaml")
+
         self.prev_state = None
         
 
@@ -48,6 +55,24 @@ class FrozenLake(gym.Wrapper):
         row, col = divmod(s, self.map_size)
         board[row, col] = self.config['env']['agent']
         return board.flatten()
+    
+
+    def _cnn_state(self, s: int) -> np.ndarray:
+        board = np.zeros((4, self.map_size, self.map_size), dtype=np.float32)
+
+        for i in range(self.map_size):
+            for j in range(self.map_size):
+                tile = self.env.unwrapped.desc[i][j]
+                if tile == b'H':
+                    board[2, i, j] = 1.0
+                elif tile == b'G':
+                    board[1, i, j] = 1.0
+                else:
+                    board[3, i, j] = 1.0
+
+        row, col = divmod(s, self.map_size)
+        board[0, row, col] = 1.0
+        return board
         
 
     def _create_new_env(self):
@@ -61,7 +86,13 @@ class FrozenLake(gym.Wrapper):
         self.env = new_env
         #updating state size in case it changed
         self.state_size = new_env.observation_space.n
-        self.observation_space = spaces.Box(low=0, high=1, shape=(self.state_size,), dtype=np.float32)
+
+        if self.config['agent']['model_type'] == 'MLP':
+            self.observation_space = spaces.Box(low=0, high=1, shape=(self.state_size,), dtype=np.float32)
+        elif self.config['agent']['model_type'] == 'CNN':
+            self.observation_space = spaces.Box(low=0, high=1, shape=(4, self.map_size, self.map_size), dtype=np.float32)
+        else:
+            raise ValueError("Unknown model type in yaml")
 
     
     def reset(self, shuffle_map: bool = False, **kwargs):
@@ -69,7 +100,13 @@ class FrozenLake(gym.Wrapper):
             self._create_new_env()
         observation, info = self.env.reset(**kwargs)
         self.prev_state = observation
-        return self._full_state(observation), info
+
+        if self.config['agent']['model_type'] == 'MLP':
+            return self._full_state(observation), info
+        elif self.config['agent']['model_type'] == 'CNN':
+            return self._cnn_state(observation), info
+        else:
+            raise ValueError("Unknown model type in yaml")
     
 
     def step(self, action):
@@ -95,6 +132,14 @@ class FrozenLake(gym.Wrapper):
             reward = self.config['reward']['ice']
             
         self.prev_state = observation
-        return self._full_state(observation), reward, terminated, truncated, info
+
+        if self.config['agent']['model_type'] == 'MLP':
+            observation = self._full_state(observation)
+        elif self.config['agent']['model_type'] == 'CNN':
+            observation = self._cnn_state(observation)
+        else:
+            raise ValueError("Unknown model type in yaml")
+        
+        return observation, reward, terminated, truncated, info
         
 

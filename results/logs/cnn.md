@@ -1,4 +1,4 @@
-# Training Run Report: fullstate.md
+# Training Run Report: cnn.md
 ========================================
 
 ## 1. Hyperparameters
@@ -18,7 +18,7 @@ agent:
   learning_rate: 0.0005
   mlp:
     hidden_size: 128
-  model_type: MLP
+  model_type: CNN
   target_update_freq: 10
 env:
   agent: 1
@@ -32,15 +32,15 @@ memory:
   buffer_size: 10000
 reward:
   goal: 1.0
-  hole: -1.0
+  hole: 0
   ice: 0
-  wall: -0.3
+  wall: -0.1
 testing:
   num_episodes: 10
   speed: 10000000
 training:
   log_interval: 100
-  max_steps_per_episode: 30
+  max_steps_per_episode: 200
   num_episodes: 1000
   save_interval: 500
   speed: 10000000
