@@ -80,7 +80,58 @@ class PPOAgent:
     def learn(self):
         if len(self.memory) == 0:
             return
-        pass
+        
+        experiences = self.memory.memory
+        batch = Experience(*zip(experiences))
+
+        states = torch.tensor(np.array(batch.state))
+        actions = torch.tensor(batch.action, dtype=torch.long).unsqueeze(1).to(self.device)
+        rewards = batch.reward
+        next_states = torch.tensor(np.array(batch.next_state), dtype=torch.float32).to(self.device)
+        dones = batch.done
+
+        #compute discounted returns
+        returns = []
+        G = 0
+        for reward, done in zip(reversed(rewards), reversed(dones)):
+            G = reward + self.gamma * G * (1 - done)
+            returns.insert(0, G)
+        returns = torch.tensor(returns, dtype=torch.float32).unsqueeze(1).to(self.device)
+
+        #advantages
+        old_log_probs = torch.stack(self.trajectory_log_probs).detach().unsqueeze(1)
+        values = torch.cat(self.trajectory_values).detach()
+        advantages = returns - values
+
+        #main PPO update
+        for _ in range(self.ppo_epochs):
+            logits = self.policy_net(states)
+            probs = F.softmax(logits, dim=1)
+            dist = Categorical(probs)
+            new_log_probs = dist.log_prob(actions.squeeze()).unsqueeze(1)
+            entropy = dist.entropy().mean()
+
+            ratio = torch.exp(new_log_probs - old_log_probs)
+            
+            #clipped objective
+            surr1 = ratio * advantages
+            surr2 = torch.clamp(ratio, 1-self.clip_epsilon, 1+self.clip_epsilon) * advantages
+            policy_loss = -torch.min(surr1, surr2).mean()
+
+            #value function loss (critic loss)
+            value_preds = self.value_net(states)
+            value_loss = F.mse_loss(value_preds, returns)
+
+            #total loss = actor + critic - entropy
+            loss = policy_loss + 0.5 * value_loss - self.entropy_coeff * entropy
+
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+
+        self.memory.memory.clear()
+        self.trajectory_log_probs.clear()
+        self.trajectory_values.clear()
 
 
     def update_action_net(self):
