@@ -39,7 +39,11 @@ class DDQNAgent:
         self.action_net.load_state_dict(self.policy_net.state_dict())
         self.action_net.eval()
 
-        self.optimizer = optim.Adam(self.policy_net.parameters(), lr=config['agent']['learning_rate'])
+        self.optimizer = optim.Adam(
+            self.policy_net.parameters(), 
+            lr=config['agent']['learning_rate']
+        )
+        
         self.memory = ReplayBuffer(config['memory']['buffer_size'])
 
         self.steps_done = 0
@@ -120,5 +124,9 @@ class DDQNAgent:
             os.makedirs(folder_path)
         self.policy_net.save(file_name, folder_path)
         print(f"\nAgent saved at path: {folder_path} as {file_name}")
+
+
+    def load(self, file_name: str):
+        self.policy_net.load(file_name)
 
         

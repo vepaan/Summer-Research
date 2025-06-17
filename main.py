@@ -52,7 +52,7 @@ def test(config, model_path: str):
     agent = DDQNAgent(env.observation_space.shape[0], env.action_space.n, config)
 
     try:
-        agent.policy_net.load(model_path)
+        agent.load(model_path)
         print(f"Model loaded from path")
     except:
         print(f"Error: no model found at path")

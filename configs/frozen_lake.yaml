@@ -18,13 +18,20 @@ reward:
 agent:
   model_type: CNN
 
+  # Shared
+  gamma: 0.99
+  learning_rate: 0.0005
+
+  #ddqn specific
   epsilon_decay: 2000
   epsilon_end: 0.01
   epsilon_start: 1.0
-
-  gamma: 0.99
-  learning_rate: 0.0005
   target_update_freq: 10
+
+  # PPO-specific
+  clip_epsilon: 0.2
+  ppo_epochs: 4
+  entropy_coeff: 0.01
 
   mlp:
     hidden_size: 128
