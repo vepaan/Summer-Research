@@ -41,7 +41,7 @@ class DDQNAgent:
 
         self.optimizer = optim.Adam(
             self.policy_net.parameters(), 
-            lr=config['agent']['learning_rate']
+            lr=config['agent']['learning_rate_ddqn']
         )
         
         self.memory = ReplayBuffer(config['memory']['buffer_size'])
@@ -106,7 +106,7 @@ class DDQNAgent:
             next_actions = self.policy_net(next_state_batch).argmax(dim=1).unsqueeze(1)
             next_q_values = self.action_net(next_state_batch).gather(1, next_actions)
             #when done = 1, future value is 0
-            target_q_values = reward_batch + (self.config['agent']['gamma'] * next_q_values * (1-done_batch))
+            target_q_values = reward_batch + (self.config['agent']['gamma_ddqn'] * next_q_values * (1-done_batch))
 
         loss = F.mse_loss(curr_q_values, target_q_values)
         #clear prev gradients

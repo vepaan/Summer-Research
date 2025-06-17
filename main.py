@@ -5,6 +5,7 @@ from tqdm import tqdm
 
 from src.environments.frozen_lake import FrozenLake
 from src.agents.ddqn_agent import DDQNAgent
+from src.agents.ppo_agent import PPOAgent
 from src.training.trainer import Trainer
 
 def train(config, render_mode=None):
@@ -15,11 +16,21 @@ def train(config, render_mode=None):
         render_mode=render_mode
     )
 
-    agent = DDQNAgent(
-        state_size=env.observation_space.shape[0], 
-        action_size=env.action_space.n, 
-        config=config
-    )
+    if config['agent']['rl_type'].lower() == 'ddqn':
+        agent = DDQNAgent(
+            state_size=env.observation_space.shape[0], 
+            action_size=env.action_space.n, 
+            config=config
+        )
+    elif config['agent']['rl_type'].lower() == 'ppo':
+        agent = PPOAgent(
+            state_size=env.observation_space.shape[0], 
+            action_size=env.action_space.n, 
+            config=config
+        )
+    else:
+        raise ValueError("Unknown RL algorithm in train")
+
 
     trainer = Trainer(
         agent=agent, 
@@ -49,7 +60,12 @@ def test(config, model_path: str):
         render_mode='human' if RENDER_TESTING else None
     )
     
-    agent = DDQNAgent(env.observation_space.shape[0], env.action_space.n, config)
+    if config['agent']['rl_type'].lower() == 'ddqn':
+        agent = DDQNAgent(env.observation_space.shape[0], env.action_space.n, config)
+    elif config['agent']['rl_type'].lower() == 'ppo':
+        agent = PPOAgent(env.observation_space.shape[0], env.action_space.n, config)
+    else:
+        raise ValueError("Unknown RL algorithm in test")
 
     try:
         agent.load(model_path)
@@ -95,8 +111,8 @@ def test(config, model_path: str):
 
 if __name__ == "__main__":
 
-    APPROACH = 'cnn3'
-    MODE = 'test'
+    APPROACH = 'cnn_ppo'
+    MODE = 'train'
 
     RENDER_TRAINING = False
     RENDER_TESTING = False

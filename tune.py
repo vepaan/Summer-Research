@@ -5,6 +5,7 @@ import optuna
 
 from src.environments.frozen_lake import FrozenLake
 from src.agents.ddqn_agent import DDQNAgent
+from src.agents.ppo_agent import PPOAgent
 from src.training.trainer import Trainer
 
 

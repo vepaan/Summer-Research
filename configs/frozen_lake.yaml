@@ -1,7 +1,7 @@
 training:
   log_interval: 100
   max_steps_per_episode: 200
-  num_episodes: 4000
+  num_episodes: 100
   save_interval: 500
   speed: 10000000
 
@@ -16,22 +16,27 @@ reward:
   ice: -0.05
 
 agent:
-  model_type: CNN
+  # DDQN or PPO
+  rl_type: PPO
 
-  # Shared
-  gamma: 0.99
-  learning_rate: 0.0005
+  # MLP or CNN
+  model_type: CNN 
 
   #ddqn specific
   epsilon_decay: 2000
   epsilon_end: 0.01
   epsilon_start: 1.0
   target_update_freq: 10
+  gamma_ddqn: 0.99
+  learning_rate_ddqn: 0.0005
 
   # PPO-specific
   clip_epsilon: 0.2
   ppo_epochs: 4
   entropy_coeff: 0.01
+  gae_lambda: 0.95
+  gamma_ppo: 0.99
+  learning_rate_ppo: 3e-4
 
   mlp:
     hidden_size: 128

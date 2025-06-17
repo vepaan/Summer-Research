@@ -37,14 +37,14 @@ class PPOAgent:
         
         # Load PPO-specific hyperparameters from YAML
         agent_cfg = config['agent']
-        self.gamma = agent_cfg['gamma']
+        self.gamma = agent_cfg['gamma_ppo']
         self.clip_epsilon = agent_cfg['clip_epsilon']
         self.ppo_epochs = agent_cfg['ppo_epochs']
         self.entropy_coeff = agent_cfg['entropy_coeff']
 
-        self.optimizer = optim.Aadam(
+        self.optimizer = optim.Adam(
             list(self.policy_net.parameters()) + list(self.value_net.parameters()),
-            lr = config['agent']['learning_rate']
+            lr = config['agent']['learning_rate_ppo']
         )
 
         self.memory = ReplayBuffer(config['memory']['buffer_size'])
@@ -84,31 +84,38 @@ class PPOAgent:
         experiences = self.memory.memory
         batch = Experience(*zip(experiences))
 
-        states = torch.tensor(np.array(batch.state))
+        states = torch.tensor(np.array(batch.state), dtype=torch.float32).to(self.device)
         actions = torch.tensor(batch.action, dtype=torch.long).unsqueeze(1).to(self.device)
-        rewards = batch.reward
+        rewards = torch.tensor(batch.reward, dtype=torch.float32).to(self.device)
         next_states = torch.tensor(np.array(batch.next_state), dtype=torch.float32).to(self.device)
-        dones = batch.done
+        dones = torch.tensor(batch.done, dtype=torch.float32).to(self.device)
 
-        #compute discounted returns
-        returns = []
-        G = 0
-        for reward, done in zip(reversed(rewards), reversed(dones)):
-            G = reward + self.gamma * G * (1 - done)
-            returns.insert(0, G)
-        returns = torch.tensor(returns, dtype=torch.float32).unsqueeze(1).to(self.device)
+        values = torch.cat(self.trajectory_values).squeeze(1).to(self.device).detach()
+        next_values = self.value_net(next_states).squeeze(1).detach()
+
+        gae_lambda = self.config['agent']['gae_lambda']
+        gamma = self.gamma
+
+        #deltas (TD errors)
+        deltas = rewards + gamma * next_values * (1 - done) - values
+
+        #gae computation
+        advantages = torch.zeros_like(deltas).to(self.device)
+        gae = 0
+        for t in reversed(range(len(deltas))):
+            gae = deltas[t] + gamma * gae_lambda * (1 - dones[t]) * gae
+            advantages[t] = gae
+        returns = advantages + values
 
         #advantages
         old_log_probs = torch.stack(self.trajectory_log_probs).detach().unsqueeze(1)
-        values = torch.cat(self.trajectory_values).detach()
-        advantages = returns - values
 
         #main PPO update
         for _ in range(self.ppo_epochs):
             logits = self.policy_net(states)
             probs = F.softmax(logits, dim=1)
             dist = Categorical(probs)
-            new_log_probs = dist.log_prob(actions.squeeze()).unsqueeze(1)
+            new_log_probs = dist.log_prob(actions.squeeze(-1)).unsqueeze(1)
             entropy = dist.entropy().mean()
 
             ratio = torch.exp(new_log_probs - old_log_probs)
