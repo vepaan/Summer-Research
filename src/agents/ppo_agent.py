@@ -97,7 +97,7 @@ class PPOAgent:
         gamma = self.gamma
 
         #deltas (TD errors)
-        deltas = rewards + gamma * next_values * (1 - done) - values
+        deltas = rewards + gamma * next_values * (1 - dones) - values
 
         #gae computation
         advantages = torch.zeros_like(deltas).to(self.device)
