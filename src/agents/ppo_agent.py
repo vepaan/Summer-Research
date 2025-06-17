@@ -82,7 +82,8 @@ class PPOAgent:
             return
         
         experiences = self.memory.memory
-        batch = Experience(*zip(experiences))
+        states, actions, rewards, next_states, dones = zip(*experiences)
+        batch = Experience(states, actions, rewards, next_states, dones)
 
         states = torch.tensor(np.array(batch.state), dtype=torch.float32).to(self.device)
         actions = torch.tensor(batch.action, dtype=torch.long).unsqueeze(1).to(self.device)
@@ -127,7 +128,7 @@ class PPOAgent:
 
             #value function loss (critic loss)
             value_preds = self.value_net(states)
-            value_loss = F.mse_loss(value_preds, returns)
+            value_loss = F.mse_loss(value_preds.squeeze(1), returns)
 
             #total loss = actor + critic - entropy
             loss = policy_loss + 0.5 * value_loss - self.entropy_coeff * entropy

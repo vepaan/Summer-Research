@@ -111,8 +111,8 @@ def test(config, model_path: str):
 
 if __name__ == "__main__":
 
-    APPROACH = 'cnn_ppo'
-    MODE = 'train'
+    APPROACH = 'cnn3'
+    MODE = 'test'
 
     RENDER_TRAINING = False
     RENDER_TESTING = False
