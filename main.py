@@ -6,7 +6,7 @@ from tqdm import tqdm
 from src.environments.frozen_lake import FrozenLake
 from src.agents.ddqn_agent import DDQNAgent
 from src.agents.ppo_agent import PPOAgent
-from src.training.trainer import Trainer
+from src.training.trainer import DDQNTrainer, PPOTrainer
 
 def train(config, render_mode=None):
     print("---Starting Training---")
@@ -17,28 +17,40 @@ def train(config, render_mode=None):
     )
 
     if config['agent']['rl_type'].lower() == 'ddqn':
+
         agent = DDQNAgent(
             state_size=env.observation_space.shape[0], 
             action_size=env.action_space.n, 
             config=config
         )
+
+        trainer = DDQNTrainer(
+            agent=agent, 
+            env=env, 
+            config=config, 
+            render_mode=render_mode,
+            plot=False
+        )
+
     elif config['agent']['rl_type'].lower() == 'ppo':
+
         agent = PPOAgent(
             state_size=env.observation_space.shape[0], 
             action_size=env.action_space.n, 
             config=config
         )
+
+        trainer = PPOTrainer(
+            agent=agent,
+            env=env,
+            config=config,
+            render_mode=render_mode,
+            plot=False
+        )
+
     else:
         raise ValueError("Unknown RL algorithm in train")
 
-
-    trainer = Trainer(
-        agent=agent, 
-        env=env, 
-        config=config, 
-        render_mode=render_mode,
-        plot=False
-    )
 
     trainer.run(
         policy_path="results/models",
@@ -111,7 +123,7 @@ def test(config, model_path: str):
 
 if __name__ == "__main__":
 
-    APPROACH = 'cnn3'
+    APPROACH = 'ppo_cnn'
     MODE = 'test'
 
     RENDER_TRAINING = False

@@ -1,9 +1,10 @@
-# Training Run Report: cnn3.md
+# Training Run Report: ddqn_mlp.md
 ========================================
 
 ## 1. Hyperparameters
 ```yaml
 agent:
+  clip_epsilon: 0.2
   cnn:
     conv_channels: 16
     hidden_size: 128
@@ -11,14 +12,20 @@ agent:
     - 4
     - 4
     - 4
+  entropy_coeff: 0.01
   epsilon_decay: 2000
   epsilon_end: 0.01
   epsilon_start: 1.0
-  gamma: 0.99
-  learning_rate: 0.0005
+  gae_lambda: 0.95
+  gamma_ddqn: 0.99
+  gamma_ppo: 0.99
+  learning_rate_ddqn: 0.0005
+  learning_rate_ppo: 0.0003
   mlp:
     hidden_size: 128
-  model_type: CNN
+  model_type: MLP
+  ppo_epochs: 4
+  rl_type: DDQN
   target_update_freq: 10
 env:
   agent: 1
