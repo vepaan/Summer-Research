@@ -86,6 +86,7 @@ class PPOAgent:
         # GAE Calculation
         advantages = torch.zeros_like(rewards)
         last_gae_lam = 0
+        
         for t in reversed(range(len(rewards))):
             next_non_terminal = 1.0 - dones[t]
             if t == len(rewards) - 1:

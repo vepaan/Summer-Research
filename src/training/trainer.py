@@ -107,6 +107,7 @@ class PPOTrainer:
         self.log_interval = config['training']['log_interval']
         self.save_interval = config['training']['save_interval']
         self.render_speed = config['training']['speed']
+        self.update_timestep = config['agent']['update_timestep']
 
         self.scores = []
         self.scores_window = deque(maxlen=100)

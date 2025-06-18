@@ -20,7 +20,7 @@ agent:
   rl_type: PPO
 
   # MLP or CNN
-  model_type: CNN 
+  model_type: CNN
 
   #ddqn specific
   epsilon_decay: 2000

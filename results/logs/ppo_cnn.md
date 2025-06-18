@@ -27,6 +27,7 @@ agent:
   ppo_epochs: 4
   rl_type: PPO
   target_update_freq: 10
+  update_timestep: 2048
 env:
   agent: 1
   goal: 0.7
