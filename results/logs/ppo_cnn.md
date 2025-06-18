@@ -24,7 +24,7 @@ agent:
   mlp:
     hidden_size: 128
   model_type: CNN
-  ppo_epochs: 15
+  ppo_epochs: 4
   rl_type: PPO
   target_update_freq: 10
 env:
@@ -48,7 +48,7 @@ testing:
 training:
   log_interval: 100
   max_steps_per_episode: 200
-  num_episodes: 100
+  num_episodes: 4000
   save_interval: 500
   speed: 10000000
 ```
