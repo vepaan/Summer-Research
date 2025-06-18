@@ -47,7 +47,7 @@ agent:
     conv_channels: 16
 
 env:
-  is_slippery: false
+  is_slippery: true
   map_size: 4
   goal: 0.7
   hole: 0
