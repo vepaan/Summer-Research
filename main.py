@@ -136,11 +136,11 @@ def test(config, model_path: str):
 
 if __name__ == "__main__":
 
-    APPROACH = 'ddqn_cnn_slippery'
+    APPROACH = 'ppo_cnn'
     MODE = 'test'
 
     RENDER_TRAINING = False
-    RENDER_TESTING = True
+    RENDER_TESTING = False
 
     SHUFFLE_TRAIN_MAP = True
     SHUFFLE_TEST_MAP = True

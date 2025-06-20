@@ -47,7 +47,7 @@ testing:
   speed: 10000000
 training:
   log_interval: 100
-  max_steps_per_episode: 200
+  max_steps_per_episode: 32
   num_episodes: 4000
   save_interval: 500
   speed: 10000000

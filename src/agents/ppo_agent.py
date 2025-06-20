@@ -101,7 +101,8 @@ class PPOAgent:
         
         # Only normalize advantages if the trajectory has more than one step to avoid division by zero.
         if len(self.memory) > 1:
-            advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
+            #advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
+            pass
 
         # PPO Update loop
         for _ in range(self.ppo_epochs):
