@@ -136,7 +136,7 @@ def test(config, model_path: str):
 
 if __name__ == "__main__":
 
-    APPROACH = 'ppo_cnn'
+    APPROACH = 'ppo_cnn_slippery'
     MODE = 'test'
 
     RENDER_TRAINING = False
