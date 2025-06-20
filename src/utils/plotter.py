@@ -80,10 +80,9 @@ def plot_rewards(scores: list, folder_path: str, file_name: str, data_path: str,
 
     plt.savefig(os.path.join(folder_path, file_name))
 
-    data_file_name = data_name + '_data.csv'
-    data_save_path = os.path.join(data_path, data_file_name)
-
+    data_save_path = os.path.join(data_path, data_name)
     df.to_csv(data_save_path, index_label='Episode')
+
     print(f"Data saved to {data_save_path}")
 
     plt.close()
