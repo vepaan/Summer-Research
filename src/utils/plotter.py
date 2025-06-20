@@ -57,18 +57,18 @@ class LivePlotter:
         
 
 
-def plot_rewards(scores: list, folder_path: str, file_name: str):
+def plot_rewards(scores: list, folder_path: str, file_name: str, data_path: str, data_name: str):
     #plot per ep scores and a 100 episode rolling avg
     print(f"\nPlotting the rewards against eps")
 
     sns.set_theme(style="darkgrid")
     plt.figure(figsize=(12, 6))
 
-    scores_series = pd.Series(scores)
-    rolling_avg = scores_series.rolling(window=100).mean()
+    df = pd.DataFrame({'Episode Score': scores})
+    df['100-Ep Rolling Avg'] = df['Episode Score'].rolling(window=100).mean()
 
-    plt.plot(scores, label='Episode Score', color='orange')
-    plt.plot(rolling_avg, label='100-Ep Rolling Avg', color='gray', alpha=0.4)
+    plt.plot(df['Episode Score'], label='Episode Score', color='orange')
+    plt.plot(df['100-Ep Rolling Avg'], label='100-Ep Rolling Avg', color='gray', alpha=0.7)
 
     plt.title('Learning Progress')
     plt.xlabel('Episode')
@@ -79,6 +79,13 @@ def plot_rewards(scores: list, folder_path: str, file_name: str):
         os.makedirs(folder_path)
 
     plt.savefig(os.path.join(folder_path, file_name))
+
+    data_file_name = data_name + '_data.csv'
+    data_save_path = os.path.join(data_path, data_file_name)
+
+    df.to_csv(data_save_path, index_label='Episode')
+    print(f"Data saved to {data_save_path}")
+
     plt.close()
     print("\nPlot saved")
 
