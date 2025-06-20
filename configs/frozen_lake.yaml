@@ -11,7 +11,7 @@ testing:
 
 reward:
   goal: 1.0
-  hole: 0
+  hole: -1.0
   wall: -0.1
   ice: -0.05
 
