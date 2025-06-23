@@ -159,4 +159,5 @@ class PPOAgent:
         checkpoint = torch.load(file_path, map_location=self.device)
         self.actor.load_state_dict(checkpoint['policy_net'])
         self.critic.load_state_dict(checkpoint['value_net'])
-        self.actor.eval(), self.critic.eval()
+        self.actor.to(self.device).eval()
+        self.critic.to(self.device).eval()
