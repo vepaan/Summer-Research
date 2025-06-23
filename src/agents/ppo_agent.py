@@ -44,8 +44,8 @@ class PPOAgent:
         )
 
         #for cuda purposes
-        self.policy_net = self.policy_net.to(self.device)
-        self.action_net = self.action_net.to(self.device)
+        self.actor = self.actor.to(self.device)
+        self.critic = self.critic.to(self.device)
         
         self.memory = []
 
