@@ -42,6 +42,10 @@ class PPOAgent:
             list(self.actor.parameters()) + list(self.critic.parameters()),
             lr=agent_cfg['learning_rate_ppo']
         )
+
+        #for cuda purposes
+        self.policy_net = self.policy_net.to(self.device)
+        self.action_net = self.action_net.to(self.device)
         
         self.memory = []
 
