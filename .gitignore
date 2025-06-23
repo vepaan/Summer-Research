@@ -5,3 +5,4 @@ src/environments/__pycache__
 src/models/__pycache__
 src/training/__pycache__
 src/utils/__pycache__
+remote.sh

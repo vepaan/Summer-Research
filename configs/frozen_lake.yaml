@@ -11,13 +11,13 @@ testing:
 
 reward:
   goal: 1.0
-  hole: -2.0
+  hole: -3.0
   wall: -0.1
   ice: -0.05
 
 agent:
   # DDQN or PPO
-  rl_type: DDQN
+  rl_type: PPO
 
   # MLP or CNN
   model_type: CNN

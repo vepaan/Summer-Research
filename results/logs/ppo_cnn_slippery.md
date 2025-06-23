@@ -39,7 +39,7 @@ memory:
   buffer_size: 10000
 reward:
   goal: 1.0
-  hole: 0
+  hole: -3.0
   ice: -0.05
   wall: -0.1
 testing:
