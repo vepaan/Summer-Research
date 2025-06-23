@@ -39,6 +39,10 @@ class DDQNAgent:
         self.action_net.load_state_dict(self.policy_net.state_dict())
         self.action_net.eval()
 
+        #for cuda purposes
+        self.policy_net = self.policy_net.to(self.device)
+        self.action_net = self.action_net.to(self.device)
+
         self.optimizer = optim.Adam(
             self.policy_net.parameters(), 
             lr=config['agent']['learning_rate_ddqn']
@@ -128,5 +132,7 @@ class DDQNAgent:
 
     def load(self, file_name: str):
         self.policy_net.load(file_name)
+        self.policy_net = self.policy_net.to(self.device)
+        self.action_net = self.action_net.to(self.device)
 
         
