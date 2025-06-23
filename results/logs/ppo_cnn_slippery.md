@@ -7,7 +7,7 @@ agent:
   clip_epsilon: 0.2
   cnn:
     conv_channels: 16
-    hidden_size: 128
+    hidden_size: 512
     input_shape:
     - 4
     - 4
