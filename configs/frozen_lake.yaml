@@ -43,7 +43,7 @@ agent:
 
   cnn:
     hidden_size: 512
-    input_shape: [5, 4, 4] #[channels, height, width]
+    input_shape: [4, 4, 4] #[channels, height, width]
     conv_channels: 16
 
 env:

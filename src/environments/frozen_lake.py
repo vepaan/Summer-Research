@@ -73,31 +73,28 @@ class FrozenLake(gym.Wrapper):
         row, col = divmod(s, self.map_size)
         board[0, row, col] = 1.0
 
-        risk_map = self._compute_risk_map()
-        board[4] = risk_map
-        
         return board
     
 
-    def _compute_risk_map(self):
-        risk_map = np.zeros((self.map_size, self.map_size), dtype=np.float32)
-        offsets = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    # def _compute_risk_map(self):
+    #     risk_map = np.zeros((self.map_size, self.map_size), dtype=np.float32)
+    #     offsets = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
-        for i in range(self.map_size):
-            for j in range(self.map_size):
+    #     for i in range(self.map_size):
+    #         for j in range(self.map_size):
 
-                if self.env.unwrapped.desc[i][j] == b'H':
-                    for dx, dy in offsets:
-                        ni, nj = i+dx, j+dy
-                        if 0 <= ni < self.map_size and 0 <= nj < self.map_size:
-                            if dx != 0 or dy != 0:
-                                risk_map[ni][nj] += 1.0 #one unit of risk per neighbor
+    #             if self.env.unwrapped.desc[i][j] == b'H':
+    #                 for dx, dy in offsets:
+    #                     ni, nj = i+dx, j+dy
+    #                     if 0 <= ni < self.map_size and 0 <= nj < self.map_size:
+    #                         if dx != 0 or dy != 0:
+    #                             risk_map[ni][nj] += 1.0 #one unit of risk per neighbor
 
-        #normalize to [0, 1]
-        if np.max(risk_map) > 0:
-            risk_map /= np.max(risk_map)
+    #     #normalize to [0, 1]
+    #     if np.max(risk_map) > 0:
+    #         risk_map /= np.max(risk_map)
 
-        return risk_map
+    #     return risk_map
         
 
     def _create_new_env(self):
