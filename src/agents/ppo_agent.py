@@ -56,7 +56,7 @@ class PPOAgent:
             dist = Categorical(probs)
 
             if evaluation_mode:
-                action = dist.mode #take most likely action in eval
+                action = torch.argmax(probs, dim=1) #take most likely action in eval
                 return action.item()
             else:
                 action = dist.sample()
