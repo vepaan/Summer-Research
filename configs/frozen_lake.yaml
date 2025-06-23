@@ -17,7 +17,7 @@ reward:
 
 agent:
   # DDQN or PPO
-  rl_type: PPO
+  rl_type: DDQN
 
   # MLP or CNN
   model_type: CNN
@@ -42,7 +42,7 @@ agent:
     hidden_size: 128
 
   cnn:
-    hidden_size: 128
+    hidden_size: 512
     input_shape: [4, 4, 4] #[channels, height, width]
     conv_channels: 16
 
