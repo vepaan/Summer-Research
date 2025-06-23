@@ -10,7 +10,7 @@ from src.training.trainer import DDQNTrainer, PPOTrainer
 
 def _automate_config(config):
     map_size = config['env']['map_size']
-    config['agent']['cnn']['input_shape'] = [4, map_size, map_size]
+    config['agent']['cnn']['input_shape'] = [config['agent']['cnn']['input_shape'][0], map_size, map_size]
 
     #automate max steps per episode (optional but good practice)
     #simple heuristic: give the agent at least enough steps to visit every tile twice.

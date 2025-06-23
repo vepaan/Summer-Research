@@ -26,35 +26,35 @@ class FrozenLake(gym.Wrapper):
         if self.config['agent']['model_type'] == 'MLP':
             self.observation_space = spaces.Box(low=0, high=1, shape=(self.state_size,), dtype=np.float32)
         elif self.config['agent']['model_type'] == 'CNN':
-            self.observation_space = spaces.Box(low=0, high=1, shape=(4, self.map_size, self.map_size), dtype=np.float32)
+            self.observation_space = spaces.Box(low=0, high=1, shape=(self.config['agent']['cnn']['input_shape'][0], self.map_size, self.map_size), dtype=np.float32)
         else:
             raise ValueError("Unknown model type in yaml")
 
         self.prev_state = None
         
 
-    def _to_one_hot(self, s: int) -> np.ndarray:
-        one_hot = np.zeros(self.state_size, dtype=np.float32)
-        one_hot[s] = 1.0
-        return one_hot
+    # def _to_one_hot(self, s: int) -> np.ndarray:
+    #     one_hot = np.zeros(self.state_size, dtype=np.float32)
+    #     one_hot[s] = 1.0
+    #     return one_hot
     
 
-    def _full_state(self, s: int) -> np.ndarray:
-        board = np.zeros((self.map_size, self.map_size), dtype=np.float32)
+    # def _full_state(self, s: int) -> np.ndarray:
+    #     board = np.zeros((self.map_size, self.map_size), dtype=np.float32)
 
-        for i in range(self.map_size):
-            for j in range(self.map_size):
-                tile = self.env.unwrapped.desc[i][j]
-                if tile == b'H':
-                    board[i, j] = self.config['env']['hole']
-                elif tile == b'G':
-                    board[i, j] = self.config['env']['goal']
-                else:
-                    board[i, j] = self.config['env']['ice']
+    #     for i in range(self.map_size):
+    #         for j in range(self.map_size):
+    #             tile = self.env.unwrapped.desc[i][j]
+    #             if tile == b'H':
+    #                 board[i, j] = self.config['env']['hole']
+    #             elif tile == b'G':
+    #                 board[i, j] = self.config['env']['goal']
+    #             else:
+    #                 board[i, j] = self.config['env']['ice']
 
-        row, col = divmod(s, self.map_size)
-        board[row, col] = self.config['env']['agent']
-        return board.flatten()
+    #     row, col = divmod(s, self.map_size)
+    #     board[row, col] = self.config['env']['agent']
+    #     return board.flatten()
     
 
     def _cnn_state(self, s: int) -> np.ndarray:
@@ -73,6 +73,10 @@ class FrozenLake(gym.Wrapper):
         row, col = divmod(s, self.map_size)
         board[0, row, col] = 1.0
         return board
+    
+
+    def _compute_risk_map(board):
+        pass
         
 
     def _create_new_env(self):
@@ -90,7 +94,7 @@ class FrozenLake(gym.Wrapper):
         if self.config['agent']['model_type'] == 'MLP':
             self.observation_space = spaces.Box(low=0, high=1, shape=(self.state_size,), dtype=np.float32)
         elif self.config['agent']['model_type'] == 'CNN':
-            self.observation_space = spaces.Box(low=0, high=1, shape=(4, self.map_size, self.map_size), dtype=np.float32)
+            self.observation_space = spaces.Box(low=0, high=1, shape=(self.config['agent']['cnn']['input_shape'][0], self.map_size, self.map_size), dtype=np.float32)
         else:
             raise ValueError("Unknown model type in yaml")
 
