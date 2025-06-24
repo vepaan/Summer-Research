@@ -1,6 +1,7 @@
 import yaml
 import numpy as np
 import time
+import pandas as pd
 from tqdm import tqdm
 
 from src.environments.frozen_lake import FrozenLake
@@ -124,11 +125,14 @@ def test(config, model_path: str):
     
     render_speed = config['testing']['speed']
     num_test_episodes = config['testing']['num_episodes']
-    wins = 0
+    test_results = []
     total_rewards = []
+    wins = 0
 
     for _ in tqdm(range(num_test_episodes), desc="Testing Episodes"):
         state, _ = env.reset(shuffle_map=SHUFFLE_TEST_MAP)
+        map_difficulty = env.win_prob
+        won = False
         done = False
         episode_reward = 0
         
@@ -148,12 +152,39 @@ def test(config, model_path: str):
 
             done = terminated or truncated
             if reward == config['reward']['goal']:
+                won = True
                 wins += 1
 
         total_rewards.append(episode_reward)
+        test_results.append((won, map_difficulty))
 
-    print(f"\nAverage score: {np.mean(total_rewards)}")
-    print("\nGame Win Rate: ", wins / num_test_episodes)
+
+    df = pd.DataFrame(test_results, columns=['win', 'difficulty'])
+    
+    q1 = df['difficulty'].quantile(1/3)
+    q2 = df['difficulty'].quantile(2/3)
+
+    def categorize(d: float) -> str:
+        if d <= q1:
+            return "hard"
+        elif d <= q2:
+            return "medium"
+        else:
+            return "easy"
+
+    df["tier"] = df["difficulty"].apply(categorize)
+
+    #TEST ANALYTICS
+    print(f"\nAverage score: {np.mean(total_rewards)}\n")
+    print(f"Overall win rate: {wins}/{num_test_episodes}\n")
+
+    for tier in ["easy", "medium", "hard"]:
+        tier_df = df[df["tier"] == tier]
+        tier_win_rate = tier_df["win"].mean()
+        print(f"{tier.capitalize()} Maps:")
+        print(f"  Count: {len(tier_df)}")
+        print(f"  Win Rate: {tier_win_rate:.3f}")
+
     env.close()
 
 if __name__ == "__main__":
