@@ -106,31 +106,11 @@ class DDQNAgent:
 
         #calculate target q values using DDQN
         with torch.no_grad():
-            batch_size = next_state_batch.size(0)
-            num_actions = self.action_size
-            
-            # Get Q values from action_net for all actions (shape: batch_size x num_actions)
-            q_values_next = self.action_net(next_state_batch)  # target net Q-values
-            
-            # Get greedy actions from policy_net (shape: batch_size)
-            greedy_actions = self.policy_net(next_state_batch).argmax(dim=1)
-            
-            # Calculate epsilon for this step
-            eps_start = self.config['agent']['epsilon_start']
-            eps_end = self.config['agent']['epsilon_end']
-            eps_decay = self.config['agent']['epsilon_decay']
-            epsilon = eps_end + (eps_start - eps_end) * np.exp(-1. * self.steps_done / eps_decay)
-            
-            # Compute policy probabilities: shape batch_size x num_actions
-            policy_probs = torch.full((batch_size, num_actions), epsilon / num_actions, device=self.device)
-            policy_probs[torch.arange(batch_size), greedy_actions] += (1.0 - epsilon)
-            
-            # Expected Q = sum_a π(a|s') * Q(s', a)
-            expected_q_next = torch.sum(policy_probs * q_values_next, dim=1, keepdim=True)
-            
-            # Compute target Q values
-            target_q_values = reward_batch + (self.config['agent']['gamma_ddqn'] * expected_q_next * (1 - done_batch))
-
+            #select best action for next state
+            next_actions = self.policy_net(next_state_batch).argmax(dim=1).unsqueeze(1)
+            next_q_values = self.action_net(next_state_batch).gather(1, next_actions)
+            #when done = 1, future value is 0
+            target_q_values = reward_batch + (self.config['agent']['gamma_ddqn'] * next_q_values * (1-done_batch))
 
         loss = F.mse_loss(curr_q_values, target_q_values)
         #clear prev gradients
