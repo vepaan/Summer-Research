@@ -176,7 +176,7 @@ def test(config, model_path: str):
 
     #TEST ANALYTICS
     print(f"\nAverage score: {np.mean(total_rewards)}\n")
-    print(f"Overall win rate: {wins}/{num_test_episodes}\n")
+    print(f"Overall win rate: {wins}/{num_test_episodes}: {wins/num_test_episodes}\n")
 
     for tier in ["easy", "medium", "hard"]:
         tier_df = df[df["tier"] == tier]
@@ -193,7 +193,7 @@ if __name__ == "__main__":
     MODE = 'test'
 
     RENDER_TRAINING = False
-    RENDER_TESTING = True
+    RENDER_TESTING = False
 
     SHUFFLE_TRAIN_MAP = True
     SHUFFLE_TEST_MAP = True
