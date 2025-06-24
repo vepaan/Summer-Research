@@ -6,7 +6,7 @@ training:
   speed: 10000000
 
 testing:
-  num_episodes: 4000
+  num_episodes: 1
   speed: 10000000
 
 reward:

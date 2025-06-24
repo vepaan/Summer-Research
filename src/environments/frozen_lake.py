@@ -1,7 +1,9 @@
 import gymnasium as gym
+import numpy as np
+
 from gymnasium.envs.toy_text.frozen_lake import generate_random_map
 from gymnasium import spaces
-import numpy as np
+from src.utils.win_probability import compute_win_probability
 
 class FrozenLake(gym.Wrapper):
 
@@ -31,30 +33,6 @@ class FrozenLake(gym.Wrapper):
             raise ValueError("Unknown model type in yaml")
 
         self.prev_state = None
-        
-
-    # def _to_one_hot(self, s: int) -> np.ndarray:
-    #     one_hot = np.zeros(self.state_size, dtype=np.float32)
-    #     one_hot[s] = 1.0
-    #     return one_hot
-    
-
-    # def _full_state(self, s: int) -> np.ndarray:
-    #     board = np.zeros((self.map_size, self.map_size), dtype=np.float32)
-
-    #     for i in range(self.map_size):
-    #         for j in range(self.map_size):
-    #             tile = self.env.unwrapped.desc[i][j]
-    #             if tile == b'H':
-    #                 board[i, j] = self.config['env']['hole']
-    #             elif tile == b'G':
-    #                 board[i, j] = self.config['env']['goal']
-    #             else:
-    #                 board[i, j] = self.config['env']['ice']
-
-    #     row, col = divmod(s, self.map_size)
-    #     board[row, col] = self.config['env']['agent']
-    #     return board.flatten()
     
 
     def _cnn_state(self, s: int) -> np.ndarray:
@@ -75,27 +53,6 @@ class FrozenLake(gym.Wrapper):
 
         return board
     
-
-    # def _compute_risk_map(self):
-    #     risk_map = np.zeros((self.map_size, self.map_size), dtype=np.float32)
-    #     offsets = [(-1, 0), (1, 0), (0, -1), (0, 1)]
-
-    #     for i in range(self.map_size):
-    #         for j in range(self.map_size):
-
-    #             if self.env.unwrapped.desc[i][j] == b'H':
-    #                 for dx, dy in offsets:
-    #                     ni, nj = i+dx, j+dy
-    #                     if 0 <= ni < self.map_size and 0 <= nj < self.map_size:
-    #                         if dx != 0 or dy != 0:
-    #                             risk_map[ni][nj] += 1.0 #one unit of risk per neighbor
-
-    #     #normalize to [0, 1]
-    #     if np.max(risk_map) > 0:
-    #         risk_map /= np.max(risk_map)
-
-    #     return risk_map
-        
 
     def _create_new_env(self):
         new_env = gym.make(
@@ -120,6 +77,11 @@ class FrozenLake(gym.Wrapper):
     def reset(self, shuffle_map: bool = False, **kwargs):
         if shuffle_map:
             self._create_new_env()
+
+        #compute winning probability
+        self.win_prob = compute_win_probability(self.env.unwrapped.desc, self.map_size, self.is_slippery)
+        print(f"[INFO] Probability of winning: {self.win_prob:.4f}")
+
         observation, info = self.env.reset(**kwargs)
         self.prev_state = observation
 
