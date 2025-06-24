@@ -18,6 +18,28 @@ def _automate_config(config):
 
     return config
 
+
+def _load_config_from_log(log_path: str) -> dict:
+    with open(log_path, 'r') as f:
+        lines = f.readlines()
+
+    start, end = None, None
+    for idx, line in enumerate(lines):
+        if line.strip() == '```yaml':
+            start = idx + 1
+        elif line.strip() == '```' and start is not None:
+            end = idx
+            break
+
+    if start is None or end is None:
+        raise ValueError("YAML block not found in log file")
+    
+    yaml_block = ''.join(lines[start:end])
+    config = yaml.safe_load(yaml_block)
+
+    return config
+
+
 def train(config, render_mode=None):
     print("---Starting Training---")
     
@@ -75,6 +97,7 @@ def train(config, render_mode=None):
     )
 
     env.close()
+
 
 def test(config, model_path: str):
     print("---Starting Testing---")
@@ -135,7 +158,7 @@ def test(config, model_path: str):
 
 if __name__ == "__main__":
 
-    APPROACH = 'ddqn_cnn_slippery'
+    APPROACH = 'ddqn_cnn'
     MODE = 'test'
 
     RENDER_TRAINING = False
@@ -146,6 +169,7 @@ if __name__ == "__main__":
 
     CONFIG_PATH = 'configs/frozen_lake.yaml'
     MODEL_PATH = f'results/models/{APPROACH}.pth'
+    LOG_PATH = f'results/logs/{APPROACH}.md'
 
     with open(CONFIG_PATH, 'r') as f:
         config = yaml.safe_load(f)
@@ -156,6 +180,6 @@ if __name__ == "__main__":
         render_mode = 'human' if RENDER_TRAINING else None
         train(config, render_mode=render_mode)
     elif MODE == 'test':
-        test(config, model_path=MODEL_PATH)
+        test(_load_config_from_log(log_path=LOG_PATH), model_path=MODEL_PATH)
     else:
         print("Invalid mode. Choose 'train' or 'test'")
