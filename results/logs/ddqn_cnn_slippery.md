@@ -43,7 +43,7 @@ reward:
   ice: -0.05
   wall: -0.1
 testing:
-  num_episodes: 10000
+  num_episodes: 4000
   speed: 10000000
 training:
   log_interval: 100

@@ -12,7 +12,7 @@ agent:
     - 4
     - 4
     - 4
-  entropy_coeff: 0.01
+  entropy_coeff: 0.005
   epsilon_decay: 2000
   epsilon_end: 0.01
   epsilon_start: 1.0
@@ -25,7 +25,7 @@ agent:
     hidden_size: 128
   model_type: CNN
   ppo_epochs: 4
-  rl_type: PPO
+  rl_type: DDQN
   target_update_freq: 10
 env:
   agent: 1
@@ -43,7 +43,7 @@ reward:
   ice: -0.05
   wall: -0.1
 testing:
-  num_episodes: 10000
+  num_episodes: 4000
   speed: 10000000
 training:
   log_interval: 100

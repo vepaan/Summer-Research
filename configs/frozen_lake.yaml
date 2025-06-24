@@ -33,7 +33,7 @@ agent:
   # PPO-specific
   clip_epsilon: 0.2
   ppo_epochs: 4
-  entropy_coeff: 0.01
+  entropy_coeff: 0.005
   gae_lambda: 0.95
   gamma_ppo: 0.99
   learning_rate_ppo: 0.0003
