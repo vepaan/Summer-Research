@@ -17,6 +17,10 @@ def _automate_config(config):
     #simple heuristic: give the agent at least enough steps to visit every tile twice.
     config['training']['max_steps_per_episode'] = (map_size ** 2) * 2
 
+    #auto update memory requirements for ddqn
+    config['memory']['buffer_size'] = max(10000, map_size**3)
+    config['memory']['batch_size'] = min(128, max(32, map_size * 4))
+
     return config
 
 
