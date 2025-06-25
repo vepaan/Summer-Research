@@ -179,7 +179,7 @@ def test(config, model_path: str):
 
 if __name__ == "__main__":
 
-    APPROACH = 'ppo_cnn_6x6'
+    APPROACH = 'ddqn_cnn_6x6_slippery'
     MODE = 'train'
 
     RENDER_TRAINING = False
