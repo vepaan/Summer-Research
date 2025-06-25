@@ -23,7 +23,7 @@ agent:
   model_type: CNN
 
   #ddqn specific
-  epsilon_decay: 2000
+  epsilon_decay: 3000
   epsilon_end: 0.01
   epsilon_start: 1.0
   target_update_freq: 10
