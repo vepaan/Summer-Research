@@ -17,7 +17,7 @@ reward:
 
 agent:
   # DDQN or PPO
-  rl_type: DDQN
+  rl_type: ppo
 
   # MLP or CNN
   model_type: CNN
@@ -32,7 +32,7 @@ agent:
 
   # PPO-specific
   clip_epsilon: 0.2
-  ppo_epochs: 4
+  ppo_epochs: 6
   entropy_coeff: 0.005
   gae_lambda: 0.95
   gamma_ppo: 0.99
