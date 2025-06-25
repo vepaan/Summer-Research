@@ -7,7 +7,7 @@ agent:
   clip_epsilon: 0.2
   cnn:
     conv_channels: 32
-    hidden_size: 512
+    hidden_size: 1024
     input_shape:
     - 4
     - 6
@@ -35,8 +35,8 @@ env:
   is_slippery: true
   map_size: 6
 memory:
-  batch_size: 64
-  buffer_size: 10000
+  batch_size: 128
+  buffer_size: 50000
 reward:
   goal: 4.0
   hole: -3.0
