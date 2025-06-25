@@ -9,20 +9,6 @@ from src.agents.ddqn_agent import DDQNAgent
 from src.agents.ppo_agent import PPOAgent
 from src.training.trainer import DDQNTrainer, PPOTrainer
 
-def _automate_config(config):
-    map_size = config['env']['map_size']
-    config['agent']['cnn']['input_shape'] = [config['agent']['cnn']['input_shape'][0], map_size, map_size]
-
-    #automate max steps per episode (optional but good practice)
-    #simple heuristic: give the agent at least enough steps to visit every tile twice.
-    config['training']['max_steps_per_episode'] = (map_size ** 2) * 2
-
-    #auto update memory requirements for ddqn
-    config['memory']['buffer_size'] = max(10000, map_size**3)
-    config['memory']['batch_size'] = min(128, max(32, map_size * 4))
-
-    return config
-
 
 def _load_config_from_log(log_path: str) -> dict:
     with open(log_path, 'r') as f:
@@ -193,8 +179,8 @@ def test(config, model_path: str):
 
 if __name__ == "__main__":
 
-    APPROACH = 'ddqn_cnn_slippery'
-    MODE = 'test'
+    APPROACH = 'ddqn_cnn_6x6'
+    MODE = 'train'
 
     RENDER_TRAINING = False
     RENDER_TESTING = False
@@ -208,8 +194,6 @@ if __name__ == "__main__":
 
     with open(CONFIG_PATH, 'r') as f:
         config = yaml.safe_load(f)
-
-    config = _automate_config(config)
 
     if MODE == 'train':
         render_mode = 'human' if RENDER_TRAINING else None

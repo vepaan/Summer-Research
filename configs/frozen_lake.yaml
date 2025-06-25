@@ -1,17 +1,17 @@
 training:
   log_interval: 100
-  max_steps_per_episode: 200
-  num_episodes: 4000
+  max_steps_per_episode: 300
+  num_episodes: 5000
   save_interval: 500
   speed: 10000000
 
 testing:
-  num_episodes: 1
+  num_episodes: 4000
   speed: 10000000
 
 reward:
   goal: 1.0
-  hole: -3.0
+  hole: 0.0
   wall: -0.1
   ice: -0.05
 
@@ -43,12 +43,12 @@ agent:
 
   cnn:
     hidden_size: 512
-    input_shape: [4, 4, 4] #[channels, height, width]
+    input_shape: [4, 6, 6] #[channels, height, width]
     conv_channels: 16
 
 env:
   is_slippery: true
-  map_size: 4
+  map_size: 6
   goal: 0.7
   hole: 0
   ice: 0
