@@ -10,8 +10,8 @@ testing:
   speed: 10000000
 
 reward:
-  goal: 1.0
-  hole: 0.0
+  goal: 4.0
+  hole: -3.0
   wall: -0.1
   ice: -0.05
 
@@ -27,7 +27,7 @@ agent:
   epsilon_end: 0.01
   epsilon_start: 1.0
   target_update_freq: 10
-  gamma_ddqn: 0.99
+  gamma_ddqn: 0.85
   learning_rate_ddqn: 0.0005
 
   # PPO-specific
@@ -44,7 +44,7 @@ agent:
   cnn:
     hidden_size: 512
     input_shape: [4, 6, 6] #[channels, height, width]
-    conv_channels: 16
+    conv_channels: 32
 
 env:
   is_slippery: true
@@ -55,5 +55,5 @@ env:
   agent: 1
 
 memory:
-  batch_size: 64
-  buffer_size: 10000
+  batch_size: 128
+  buffer_size: 50000
