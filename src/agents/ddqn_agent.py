@@ -116,11 +116,40 @@ class DDQNAgent:
 
         #calculate target q values using DDQN
         with torch.no_grad():
-            #select best action for next state
-            next_actions = self.policy_net(next_state_batch).argmax(dim=1).unsqueeze(1)
-            next_q_values = self.action_net(next_state_batch).gather(1, next_actions)
-            #when done = 1, future value is 0
-            target_q_values = reward_batch + (self.config['agent']['gamma_ddqn'] * next_q_values * (1-done_batch))
+            safe_next_actions = []
+
+            # convert next_state_batch to CPU numpy for env compatibility
+            next_states_np = next_state_batch.cpu().numpy()
+
+            for i in range(len(next_states_np)):
+                next_state = next_states_np[i]
+                
+                # 1. Get Q-values from policy net
+                q_values = self.policy_net(torch.tensor(next_state, dtype=torch.float32, device=self.device).unsqueeze(0))[0]
+                ranked_actions = torch.argsort(q_values, descending=True).tolist()
+
+                # 2. Determine agent position for the next state
+                if self.env:
+                    pos = self.env.get_agent_pos_from_state(next_state)  # you need to implement this helper
+                    for action in ranked_actions:
+                        if self.env.is_action_safe(pos, action):
+                            safe_next_actions.append(action)
+                            break
+                    else:
+                        # if no safe action found, just use top Q-value action
+                        safe_next_actions.append(ranked_actions[0])
+                else:
+                    safe_next_actions.append(ranked_actions[0])  # fallback if env not available
+
+            # Convert list to tensor
+            safe_next_actions = torch.tensor(safe_next_actions, dtype=torch.long, device=self.device).unsqueeze(1)
+
+            # Get Q-values of the chosen (safe) actions
+            next_q_values = self.action_net(next_state_batch).gather(1, safe_next_actions)
+
+            # Compute target
+            target_q_values = reward_batch + (self.config['agent']['gamma_ddqn'] * next_q_values * (1 - done_batch))
+
 
         loss = F.mse_loss(curr_q_values, target_q_values)
         #clear prev gradients
