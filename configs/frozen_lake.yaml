@@ -14,7 +14,6 @@ reward:
   hole: -3.0
   wall: -0.1
   ice: -0.05
-  unsafe: -0.2
 
 agent:
   # DDQN or PPO

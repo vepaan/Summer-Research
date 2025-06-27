@@ -143,10 +143,6 @@ class FrozenLake(gym.Wrapper):
             #print("moving")
             #small negative reward if agent just moves around ice
             reward = self.config['reward']['ice']
-
-        #dynamic reward shaping for unsafe actions
-        if not self.is_action_safe(self.agent_pos, action):
-            reward = self.config['reward']['unsafe']
             
         self.prev_state = observation
 
