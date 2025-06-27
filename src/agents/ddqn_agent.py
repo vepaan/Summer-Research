@@ -116,44 +116,11 @@ class DDQNAgent:
 
         #calculate target q values using DDQN
         with torch.no_grad():
-            safe_next_actions = []
-
-            # move to CPU for numpy operations
-            next_states_np = next_state_batch.cpu().numpy()
-
-            for i in range(len(next_states_np)):
-                next_state = next_states_np[i]  # shape: [C, H, W] = [4, map_size, map_size]
-
-                # Extract agent position from channel 0
-                pos = np.argwhere(next_state[0] == 1.0)[0]
-                pos = tuple(pos)  # (row, col)
-
-                # Get Q-values from policy net
-                q_values = self.policy_net(
-                    torch.tensor(next_state, dtype=torch.float32, device=self.device).unsqueeze(0)
-                )[0]
-                ranked_actions = torch.argsort(q_values, descending=True).tolist()
-
-                # Shielding logic: pick best safe action
-                for action in ranked_actions:
-                    if self.env.is_action_safe(pos, action):
-                        safe_next_actions.append(action)
-                        break
-                else:
-                    # fallback: highest-Q action even if unsafe
-                    safe_next_actions.append(ranked_actions[0])
-
-            # convert to tensor
-            safe_next_actions = torch.tensor(safe_next_actions, dtype=torch.long, device=self.device).unsqueeze(1)
-
-            # compute Q-values of chosen (safe) actions
-            next_q_values = self.action_net(next_state_batch).gather(1, safe_next_actions)
-
-            # compute target
-            target_q_values = reward_batch + (
-                self.config['agent']['gamma_ddqn'] * next_q_values * (1 - done_batch)
-            )
-
+            #select best action for next state
+            next_actions = self.policy_net(next_state_batch).argmax(dim=1).unsqueeze(1)
+            next_q_values = self.action_net(next_state_batch).gather(1, next_actions)
+            #when done = 1, future value is 0
+            target_q_values = reward_batch + (self.config['agent']['gamma_ddqn'] * next_q_values * (1-done_batch))
 
         loss = F.mse_loss(curr_q_values, target_q_values)
         #clear prev gradients
