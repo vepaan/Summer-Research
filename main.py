@@ -45,7 +45,8 @@ def train(config, render_mode=None):
             state_size=env.observation_space.shape[0], 
             action_size=env.action_space.n, 
             config=config,
-            env=env
+            env=env,
+            shield=APPLY_SHIELD
         )
 
         trainer = DDQNTrainer(
@@ -100,7 +101,7 @@ def test(config, model_path: str):
     )
     
     if config['agent']['rl_type'].lower() == 'ddqn':
-        agent = DDQNAgent(env.observation_space.shape[0], env.action_space.n, config, env)
+        agent = DDQNAgent(env.observation_space.shape[0], env.action_space.n, config, env, APPLY_SHIELD)
     elif config['agent']['rl_type'].lower() == 'ppo':
         agent = PPOAgent(env.observation_space.shape[0], env.action_space.n, config)
     else:
@@ -188,6 +189,8 @@ if __name__ == "__main__":
 
     SHUFFLE_TRAIN_MAP = True
     SHUFFLE_TEST_MAP = True
+
+    APPLY_SHIELD = True
 
     CONFIG_PATH = 'configs/frozen_lake.yaml'
     MODEL_PATH = f'results/models/{APPROACH}.pth'

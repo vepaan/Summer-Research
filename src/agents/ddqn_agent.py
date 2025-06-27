@@ -10,11 +10,12 @@ from src.utils.replay_buffer import ReplayBuffer, Experience
 
 class DDQNAgent:
 
-    def __init__(self, state_size: int, action_size: int, config: dict, env=None):
+    def __init__(self, state_size: int, action_size: int, config: dict, env=None, shield: bool = False):
         self.state_size = state_size
         self.action_size = action_size
         self.config = config
         self.env = env
+        self.shield = shield
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print(f"DDQN Agent is using device: {self.device}")
@@ -78,7 +79,7 @@ class DDQNAgent:
             ranked_actions = torch.argsort(q_values[0], descending=True).tolist()
 
         #shielding
-        if self.env:
+        if self.env and self.shield:
             for action in ranked_actions:
                 if self.env.is_action_safe(self.env.agent_pos, action):
                     #highest q value action that is also safe
