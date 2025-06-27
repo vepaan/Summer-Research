@@ -118,37 +118,41 @@ class DDQNAgent:
         with torch.no_grad():
             safe_next_actions = []
 
-            # convert next_state_batch to CPU numpy for env compatibility
+            # move to CPU for numpy operations
             next_states_np = next_state_batch.cpu().numpy()
 
             for i in range(len(next_states_np)):
-                next_state = next_states_np[i]
-                
-                # 1. Get Q-values from policy net
-                q_values = self.policy_net(torch.tensor(next_state, dtype=torch.float32, device=self.device).unsqueeze(0))[0]
+                next_state = next_states_np[i]  # shape: [C, H, W] = [4, map_size, map_size]
+
+                # Extract agent position from channel 0
+                pos = np.argwhere(next_state[0] == 1.0)[0]
+                pos = tuple(pos)  # (row, col)
+
+                # Get Q-values from policy net
+                q_values = self.policy_net(
+                    torch.tensor(next_state, dtype=torch.float32, device=self.device).unsqueeze(0)
+                )[0]
                 ranked_actions = torch.argsort(q_values, descending=True).tolist()
 
-                # 2. Determine agent position for the next state
-                if self.env:
-                    pos = self.env.get_agent_pos_from_state(next_state)  # you need to implement this helper
-                    for action in ranked_actions:
-                        if self.env.is_action_safe(pos, action):
-                            safe_next_actions.append(action)
-                            break
-                    else:
-                        # if no safe action found, just use top Q-value action
-                        safe_next_actions.append(ranked_actions[0])
+                # Shielding logic: pick best safe action
+                for action in ranked_actions:
+                    if self.env.is_action_safe(pos, action):
+                        safe_next_actions.append(action)
+                        break
                 else:
-                    safe_next_actions.append(ranked_actions[0])  # fallback if env not available
+                    # fallback: highest-Q action even if unsafe
+                    safe_next_actions.append(ranked_actions[0])
 
-            # Convert list to tensor
+            # convert to tensor
             safe_next_actions = torch.tensor(safe_next_actions, dtype=torch.long, device=self.device).unsqueeze(1)
 
-            # Get Q-values of the chosen (safe) actions
+            # compute Q-values of chosen (safe) actions
             next_q_values = self.action_net(next_state_batch).gather(1, safe_next_actions)
 
-            # Compute target
-            target_q_values = reward_batch + (self.config['agent']['gamma_ddqn'] * next_q_values * (1 - done_batch))
+            # compute target
+            target_q_values = reward_batch + (
+                self.config['agent']['gamma_ddqn'] * next_q_values * (1 - done_batch)
+            )
 
 
         loss = F.mse_loss(curr_q_values, target_q_values)
