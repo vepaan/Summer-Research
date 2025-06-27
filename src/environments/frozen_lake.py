@@ -23,6 +23,8 @@ class FrozenLake(gym.Wrapper):
         super().__init__(env)
         self.env = env
         self.state_size = self.observation_space.n
+        self.agent_pos = (0, 0)
+        #print(self.agent_pos)
 
         #overwriting original state with a box space
         if self.config['agent']['model_type'] == 'MLP':
@@ -55,6 +57,30 @@ class FrozenLake(gym.Wrapper):
         return board
     
 
+    def is_action_safe(self, pos: tuple, action: int) -> bool:
+        i, j = pos
+        size = self.map_size
+        desc = self.env.unwrapped.desc
+
+        # Slip directions based on intended action
+        if action == 0:  # left
+            slips = [(0, -1), (-1, 0), (1, 0)]
+        elif action == 1:  # down
+            slips = [(1, 0), (0, -1), (0, 1)]
+        elif action == 2:  # right
+            slips = [(0, 1), (-1, 0), (1, 0)]
+        elif action == 3:  # up
+            slips = [(-1, 0), (0, -1), (0, 1)]
+
+        # Check if any of the slip directions land in a hole
+        for dx, dy in slips:
+            ni, nj = i + dx, j + dy
+            if 0 <= ni < size and 0 <= nj < size:
+                if desc[ni][nj] == b'H':
+                    return False
+        return True
+
+
     def _create_new_env(self):
         new_env = gym.make(
             'FrozenLake-v1',
@@ -85,6 +111,8 @@ class FrozenLake(gym.Wrapper):
 
         observation, info = self.env.reset(**kwargs)
         self.prev_state = observation
+        self.agent_pos = (observation // self.map_size, observation % self.map_size)
+        #print(self.agent_pos)
 
         if self.config['agent']['model_type'] == 'MLP':
             return self._full_state(observation), info
@@ -118,13 +146,16 @@ class FrozenLake(gym.Wrapper):
             
         self.prev_state = observation
 
+        self.agent_pos = (observation // self.map_size, observation % self.map_size)
+        #print(self.agent_pos)
+
         if self.config['agent']['model_type'] == 'MLP':
             observation = self._full_state(observation)
         elif self.config['agent']['model_type'] == 'CNN':
             observation = self._cnn_state(observation)
         else:
             raise ValueError("Unknown model type in yaml")
-        
+
         return observation, reward, terminated, truncated, info
         
 

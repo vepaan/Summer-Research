@@ -10,10 +10,11 @@ from src.utils.replay_buffer import ReplayBuffer, Experience
 
 class DDQNAgent:
 
-    def __init__(self, state_size: int, action_size: int, config: dict):
+    def __init__(self, state_size: int, action_size: int, config: dict, env=None):
         self.state_size = state_size
         self.action_size = action_size
         self.config = config
+        self.env = env
 
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         print(f"DDQN Agent is using device: {self.device}")
@@ -68,16 +69,25 @@ class DDQNAgent:
         if random.random() < epsilon:
             #exploration
             return random.randrange(self.action_size)
-        else:
-            #exploitation
-            with torch.no_grad():
-                #convert state into a tensor by adding batch dim
-                state_tensor = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
-                q_values = self.policy_net(state_tensor)
-                # highest action q value
-                return q_values.argmax(dim=1).item()
-            
+        
+        #exploitation
+        with torch.no_grad():
+            #convert state into a tensor by adding batch dim
+            state_tensor = torch.from_numpy(state).float().unsqueeze(0).to(self.device)
+            q_values = self.policy_net(state_tensor)
+            ranked_actions = torch.argsort(q_values[0], descending=True).tolist()
 
+        #shielding
+        if self.env:
+            for action in ranked_actions:
+                if self.env.is_action_safe(self.env.agent_pos, action):
+                    #highest q value action that is also safe
+                    return action
+                
+        #fall back in case no actions are safe
+        return ranked_actions[0]
+            
+            
     def update_action_net(self):
         #update action net weights to match policy net's
         self.action_net.load_state_dict(self.policy_net.state_dict())
