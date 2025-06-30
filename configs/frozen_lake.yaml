@@ -6,12 +6,12 @@ training:
   speed: 10000000
 
 testing:
-  num_episodes: 2000
+  num_episodes: 3000
   speed: 10000000
 
 reward:
-  goal: 4.0
-  hole: -3.0
+  goal: 1.0
+  hole: 0.0
   wall: -0.1
   ice: -0.05
 

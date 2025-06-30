@@ -7,12 +7,12 @@ agent:
   clip_epsilon: 0.2
   cnn:
     conv_channels: 16
-    hidden_size: 128
+    hidden_size: 512
     input_shape:
     - 4
     - 4
     - 4
-  entropy_coeff: 0.01
+  entropy_coeff: 0.005
   epsilon_decay: 2000
   epsilon_end: 0.01
   epsilon_start: 1.0
@@ -24,7 +24,7 @@ agent:
   mlp:
     hidden_size: 128
   model_type: CNN
-  ppo_epochs: 4
+  ppo_epochs: 6
   rl_type: DDQN
   target_update_freq: 10
 env:
@@ -32,22 +32,25 @@ env:
   goal: 0.7
   hole: 0
   ice: 0
-  is_slippery: false
   map_size: 4
+  slip:
+  - 1
+  - 0
+  - 0
 memory:
   batch_size: 64
   buffer_size: 10000
 reward:
   goal: 1.0
-  hole: 0
+  hole: 0.0
   ice: -0.05
   wall: -0.1
 testing:
-  num_episodes: 10000
+  num_episodes: 3000
   speed: 10000000
 training:
   log_interval: 100
-  max_steps_per_episode: 32
+  max_steps_per_episode: 100
   num_episodes: 4000
   save_interval: 500
   speed: 10000000
