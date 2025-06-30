@@ -17,7 +17,8 @@ class FrozenLake(gym.Wrapper):
             'FrozenLake-v1',
             desc=generate_random_map(size=self.map_size),
             is_slippery=self.is_slippery,
-            render_mode=render_mode
+            render_mode=render_mode,
+            max_episode_steps=config['training']['max_steps_per_episode']
         )
 
         super().__init__(env)
@@ -86,7 +87,8 @@ class FrozenLake(gym.Wrapper):
             'FrozenLake-v1',
             desc=generate_random_map(size=self.map_size),
             is_slippery=self.is_slippery,
-            render_mode=self.render_md
+            render_mode=self.render_md,
+            max_episode_steps=self.config['training']['max_steps_per_episode']
         )
         self.env.close()
         self.env = new_env
