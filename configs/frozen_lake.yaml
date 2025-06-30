@@ -27,7 +27,7 @@ agent:
   epsilon_end: 0.01
   epsilon_start: 1.0
   target_update_freq: 10
-  gamma_ddqn: 0.99
+  gamma_ddqn: 0.90
   learning_rate_ddqn: 0.0005
 
   # PPO-specific
