@@ -17,7 +17,7 @@ agent:
   epsilon_end: 0.01
   epsilon_start: 1.0
   gae_lambda: 0.95
-  gamma_ddqn: 0.9
+  gamma_ddqn: 0.99
   gamma_ppo: 0.99
   learning_rate_ddqn: 0.0005
   learning_rate_ppo: 0.0003
@@ -43,7 +43,7 @@ reward:
   ice: -0.05
   wall: -0.1
 testing:
-  num_episodes: 6000
+  num_episodes: 2000
   speed: 10000000
 training:
   log_interval: 100
