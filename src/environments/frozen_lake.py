@@ -3,7 +3,7 @@ import numpy as np
 
 from gymnasium.envs.toy_text.frozen_lake import generate_random_map
 from gymnasium import spaces
-from src.utils.win_probability import compute_win_probability
+from src.utils.win_probability import compute_win_probability, approximate_win_probability
 
 class FrozenLake(gym.Wrapper):
 
@@ -35,7 +35,7 @@ class FrozenLake(gym.Wrapper):
             raise ValueError("Unknown model type in yaml")
 
         self.prev_state = None
-        self.win_prob = compute_win_probability(self.env.unwrapped.desc, self.map_size, self.config['env']['slip'])
+        self.win_prob = approximate_win_probability(self.env.unwrapped.desc, self.config['env']['slip'])
     
 
     def apply_slip(self, intended_action: int) -> int:
@@ -142,7 +142,7 @@ class FrozenLake(gym.Wrapper):
             self._create_new_env()
 
         #compute winning probability
-        self.win_prob = compute_win_probability(self.env.unwrapped.desc, self.map_size, self.config['env']['slip'])
+        self.win_prob = approximate_win_probability(self.env.unwrapped.desc, self.config['env']['slip'])
         #print(f"[INFO] Probability of winning: {self.win_prob:.4f}")
 
         observation, info = self.env.reset(**kwargs)

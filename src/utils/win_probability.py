@@ -1,6 +1,7 @@
 import numpy as np
 
-def compute_win_probability(desc: np.ndarray, size: int, slip: list[float]) -> float:
+def compute_win_probability(desc: np.ndarray, slip: list[float]) -> float:
+    size = desc.shape[0]
     num_states = size * size
 
     def to_state(i, j):
@@ -65,3 +66,10 @@ def compute_win_probability(desc: np.ndarray, size: int, slip: list[float]) -> f
         x = x_new
 
     return x[0]
+
+
+def approximate_win_probability(desc: np.ndarray, slip: list[float]) -> float:
+    size = desc.shape[0]
+    hole_ratio = np.sum(desc == b'H') / (size * size)
+    slip_penalty = slip[1] + slip[2]  # penalty for lateral slips
+    return max(0.0, min(1.0, 1.0 - (hole_ratio + 0.5 * slip_penalty) ** 1.5))
