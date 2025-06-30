@@ -35,7 +35,7 @@ class FrozenLake(gym.Wrapper):
             raise ValueError("Unknown model type in yaml")
 
         self.prev_state = None
-        self.win_prob = compute_win_probability(self.env.unwrapped.desc, self.map_size, self.is_slippery)
+        self.win_prob = compute_win_probability(self.env.unwrapped.desc, self.map_size, self.config['env']['slip'])
     
 
     def apply_slip(self, intended_action: int) -> int:
@@ -142,7 +142,7 @@ class FrozenLake(gym.Wrapper):
             self._create_new_env()
 
         #compute winning probability
-        self.win_prob = compute_win_probability(self.env.unwrapped.desc, self.map_size, self.is_slippery)
+        self.win_prob = compute_win_probability(self.env.unwrapped.desc, self.map_size, self.config['env']['slip'])
         #print(f"[INFO] Probability of winning: {self.win_prob:.4f}")
 
         observation, info = self.env.reset(**kwargs)

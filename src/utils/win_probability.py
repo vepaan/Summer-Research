@@ -1,13 +1,24 @@
 import numpy as np
 
-def compute_win_probability(desc: np.ndarray, size: int, is_slippery: bool):
-
+def compute_win_probability(desc: np.ndarray, size: int, slip: list[float]) -> float:
     num_states = size * size
 
     def to_state(i, j):
         return i * size + j
 
-    dir_list = [(-1, 0), (1, 0), (0, 1), (0, -1)]
+    move = {
+        0: (0, -1),  # LEFT
+        1: (1, 0),   # DOWN
+        2: (0, 1),   # RIGHT
+        3: (-1, 0),  # UP
+    }
+
+    slip_deltas = {
+        0: [move[0], move[3], move[1]],  # LEFT → [LEFT, UP, DOWN]
+        1: [move[1], move[0], move[2]],  # DOWN → [DOWN, LEFT, RIGHT]
+        2: [move[2], move[1], move[3]],  # RIGHT → [RIGHT, DOWN, UP]
+        3: [move[3], move[2], move[0]],  # UP → [UP, RIGHT, LEFT]
+    }
 
     P = np.zeros((num_states, num_states), dtype=np.float64)
 
@@ -17,55 +28,29 @@ def compute_win_probability(desc: np.ndarray, size: int, is_slippery: bool):
             tile = desc[i][j]
 
             if tile == b'H' or tile == b'G':
-                # Absorbing state: probability 1 to stay here
                 P[s, s] = 1.0
                 continue
 
-            transitions = {}
+            # Choose one fixed action direction — for now assume DOWN (can generalize later)
+            intended_action = 1  # assume DOWN (you can parameterize this)
 
-            for dx, dy in dir_list:
-                slips = []
-                if is_slippery:
-                    slips = [
-                        (dx, dy),
-                        (-dy, dx),  # left turn
-                        (dy, -dx),  # right turn
-                    ]
-                    prob = 1.0 / 3.0
+            for (dx, dy), prob in zip(slip_deltas[intended_action], slip):
+                ni, nj = i + dx, j + dy
+                if 0 <= ni < size and 0 <= nj < size:
+                    s_next = to_state(ni, nj)
                 else:
-                    slips = [(dx, dy)]
-                    prob = 1.0  # deterministic movement, probability 1
+                    s_next = s  # hit wall → stay
 
-                for Dx, Dy in slips:
-                    ni, nj = i + Dx, j + Dy
-                    if 0 <= ni < size and 0 <= nj < size:
-                        s_next = to_state(ni, nj)
-                    else:
-                        s_next = s  # hit wall, stay in place
+                P[s, s_next] += prob
 
-                    transitions[s_next] = transitions.get(s_next, 0.0) + prob
-
-            # Normalize to sum 1 (usually already normalized)
-            total = sum(transitions.values())
-            for k in transitions:
-                transitions[k] /= total
-
-            for k, p in transitions.items():
-                P[s, k] = p
-
-    # Now solve reachability probability vector x with:
-    # x[s] = 1 if s is goal
-    # x[s] = sum over s' P[s,s'] * x[s'] otherwise
-
+    # Solve: x[s] = sum P[s, s'] * x[s'] with x[goal] = 1
     goal_state = to_state(size - 1, size - 1)
-
     x = np.zeros(num_states, dtype=np.float64)
     x[goal_state] = 1.0
 
     eps = 1e-12
     max_iter = 10000
-
-    for iteration in range(max_iter):
+    for _ in range(max_iter):
         x_new = np.zeros_like(x)
         for s in range(num_states):
             tile = desc[s // size][s % size]
@@ -79,4 +64,4 @@ def compute_win_probability(desc: np.ndarray, size: int, is_slippery: bool):
             break
         x = x_new
 
-    return x[0]  # probability starting from initial state (0,0)
+    return x[0]
