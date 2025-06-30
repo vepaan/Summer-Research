@@ -1,6 +1,6 @@
 training:
   log_interval: 100
-  max_steps_per_episode: 300
+  max_steps_per_episode: 100
   num_episodes: 4000
   save_interval: 500
   speed: 10000000
