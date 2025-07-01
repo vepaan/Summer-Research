@@ -94,7 +94,7 @@ class PPOAgent:
         for t in reversed(range(len(rewards))):
             next_non_terminal = 1.0 - dones[t]
             if t == len(rewards) - 1:
-                next_value = 0 if dones[t] else values[t] # Bootstrap with 0 if it's the last state
+                next_value = 0 # Bootstrap with 0 if it's the last state
             else:
                 next_value = values[t + 1]
             
