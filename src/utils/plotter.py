@@ -88,3 +88,64 @@ def plot_rewards(scores: list, folder_path: str, file_name: str, data_path: str,
     plt.close()
     print("\nPlot saved")
 
+
+def plot_test_results(df: pd.DataFrame):
+    sns.set_theme(style="whitegrid", font_scale=1.2)
+
+    # 1. Win rate per difficulty tier
+    win_rate_by_tier = df.groupby("tier")["win"].mean().reindex(["easy", "medium", "hard"])
+
+    plt.figure(figsize=(6, 4))
+    sns.barplot(x=win_rate_by_tier.index, y=win_rate_by_tier.values, palette="Blues_d")
+    plt.title("Win Rate by Difficulty Tier")
+    plt.ylabel("Win Rate")
+    plt.xlabel("Difficulty Tier")
+    plt.ylim(0, 1)
+    plt.tight_layout()
+    plt.show()
+
+    # 2. Reward distribution by tier
+    plt.figure(figsize=(6, 4))
+    sns.boxplot(data=df, x="tier", y="reward", palette="Set3", order=["easy", "medium", "hard"])
+    plt.title("Reward Distribution by Difficulty Tier")
+    plt.tight_layout()
+    plt.show()
+
+    # 3. Difficulty vs win scatter
+    plt.figure(figsize=(6, 4))
+    sns.scatterplot(data=df, x="difficulty", y="win", alpha=0.6, edgecolor=None)
+    plt.title("Win Outcomes vs Map Difficulty")
+    plt.xlabel("Map Difficulty Score")
+    plt.ylabel("Win (1=True, 0=False)")
+    plt.tight_layout()
+    plt.show()
+
+    # 4. Difficulty vs reward scatter + line of best fit
+    plt.figure(figsize=(6, 4))
+    sns.regplot(data=df, x="difficulty", y="reward", scatter_kws={'alpha': 0.5})
+    plt.title("Reward vs Map Difficulty")
+    plt.tight_layout()
+    plt.show()
+
+    # 5. Win count per tier
+    plt.figure(figsize=(6, 4))
+    sns.countplot(data=df, x="tier", hue="win", palette="Set2", order=["easy", "medium", "hard"])
+    plt.title("Win/Loss Count by Difficulty Tier")
+    plt.xlabel("Difficulty Tier")
+    plt.ylabel("Number of Episodes")
+    plt.legend(title="Win", labels=["Loss", "Win"])
+    plt.tight_layout()
+    plt.show()
+
+    # 6. KDE Plot of Difficulty
+    plt.figure(figsize=(6, 4))
+    sns.kdeplot(data=df[df["win"] == 1]["difficulty"], label="Wins", shade=True)
+    sns.kdeplot(data=df[df["win"] == 0]["difficulty"], label="Losses", shade=True)
+    plt.title("Density of Difficulty for Wins vs Losses")
+    plt.xlabel("Win Prob")
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+
+

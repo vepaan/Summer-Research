@@ -7,7 +7,7 @@ from src.utils.win_probability import compute_win_probability, approximate_win_p
 
 class FrozenLake(gym.Wrapper):
 
-    def __init__(self, config: dict, render_mode: str = None):
+    def __init__(self, config: dict, render_mode: str = None, compute_win_prob: bool = False):
         self.map_size = config['env']['map_size']
         self.render_md = render_mode
         self.config = config
@@ -35,8 +35,12 @@ class FrozenLake(gym.Wrapper):
             raise ValueError("Unknown model type in yaml")
 
         self.prev_state = None
-        self.win_prob = approximate_win_probability(self.env.unwrapped.desc, self.config['env']['slip'])
-    
+        self.compute_win_prob = compute_win_prob
+        if self.compute_win_prob:
+            self.win_prob = approximate_win_probability(self.env.unwrapped.desc, self.config['env']['slip'])
+        else:
+            self.win_prob = -1
+
 
     def apply_slip(self, intended_action: int) -> int:
         slip_probs = self.config['env']['slip']
@@ -74,6 +78,29 @@ class FrozenLake(gym.Wrapper):
         board[0, row, col] = 1.0
 
         return board
+    
+
+    def _partial_cnn_state(self) -> np.ndarray:
+        channels = self.config['agent']['cnn']['input_shape'][0]
+        local_view = np.zeros((channels, 3, 3), dtype=np.float32)
+        board = self.env.unwrapped.desc
+        i, j = self.agent_pos
+
+        for di in range(-1, 2):
+            for dj in range(-1, 2):
+                ni, nj = i + di, j + dj
+                if 0 <= ni < self.map_size and 0 <= nj < self.map_size:
+                    tile = board[ni][nj]
+                    if tile == b'H':
+                        local_view[2, di+1, dj+1] = 1.0
+                    elif tile == b'G':
+                        local_view[1, di+1, dj+1] = 1.0
+                    else:
+                        local_view[3, di+1, dj+1] = 1.0
+
+        # Always mark the center (agent’s own position)
+        local_view[0, 1, 1] = 1.0
+        return local_view
     
 
     def is_action_safe(self, pos: tuple, action: int) -> bool:
@@ -142,7 +169,10 @@ class FrozenLake(gym.Wrapper):
             self._create_new_env()
 
         #compute winning probability
-        self.win_prob = approximate_win_probability(self.env.unwrapped.desc, self.config['env']['slip'])
+        if self.compute_win_prob:
+            self.win_prob = approximate_win_probability(self.env.unwrapped.desc, self.config['env']['slip'])
+        else:
+            self.win_prob = -1
         #print(f"[INFO] Probability of winning: {self.win_prob:.4f}")
 
         observation, info = self.env.reset(**kwargs)
@@ -154,6 +184,7 @@ class FrozenLake(gym.Wrapper):
             return self._full_state(observation), info
         elif self.config['agent']['model_type'] == 'CNN':
             return self._cnn_state(observation), info
+            #return self._partial_cnn_state(), info
         else:
             raise ValueError("Unknown model type in yaml")
     
@@ -190,6 +221,7 @@ class FrozenLake(gym.Wrapper):
             observation = self._full_state(observation)
         elif self.config['agent']['model_type'] == 'CNN':
             observation = self._cnn_state(observation)
+            #observation = self._partial_cnn_state()
         else:
             raise ValueError("Unknown model type in yaml")
 

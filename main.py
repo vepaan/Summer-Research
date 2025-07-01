@@ -8,6 +8,7 @@ from src.environments.frozen_lake import FrozenLake
 from src.agents.ddqn_agent import DDQNAgent
 from src.agents.ppo_agent import PPOAgent
 from src.training.trainer import DDQNTrainer, PPOTrainer
+from src.utils.plotter import plot_test_results
 
 
 def _load_config_from_log(log_path: str) -> dict:
@@ -36,7 +37,8 @@ def train(config, render_mode=None):
     
     env = FrozenLake(
         config=config,
-        render_mode=render_mode
+        render_mode=render_mode,
+        compute_win_prob=False
     )
 
     if config['agent']['rl_type'].lower() == 'ddqn':
@@ -97,7 +99,8 @@ def test(config, model_path: str):
 
     env = FrozenLake(
         config=config,
-        render_mode='human' if RENDER_TESTING else None
+        render_mode='human' if RENDER_TESTING else None,
+        compute_win_prob=True
     )
     
     if config['agent']['rl_type'].lower() == 'ddqn':
@@ -117,8 +120,7 @@ def test(config, model_path: str):
     
     render_speed = config['testing']['speed']
     num_test_episodes = config['testing']['num_episodes']
-    test_results = []
-    total_rewards = []
+    test_records = []
     wins = 0
 
     for _ in tqdm(range(num_test_episodes), desc="Testing Episodes"):
@@ -147,11 +149,14 @@ def test(config, model_path: str):
                 won = True
                 wins += 1
 
-        total_rewards.append(episode_reward)
-        test_results.append((won, map_difficulty))
+        test_records.append({
+            "win": won,
+            "difficulty": map_difficulty,
+            "reward": episode_reward
+        })
 
 
-    df = pd.DataFrame(test_results, columns=['win', 'difficulty'])
+    df = pd.DataFrame(test_records)
     
     q1 = df['difficulty'].quantile(1/3)
     q2 = df['difficulty'].quantile(2/3)
@@ -167,7 +172,7 @@ def test(config, model_path: str):
     df["tier"] = df["difficulty"].apply(categorize)
 
     #TEST ANALYTICS
-    print(f"\nAverage score: {np.mean(total_rewards)}\n")
+    print(f"\nAverage score: {np.mean(df['reward'])}\n")
     print(f"Overall win rate: {wins}/{num_test_episodes}: {wins/num_test_episodes}\n")
 
     for tier in ["easy", "medium", "hard"]:
@@ -177,11 +182,12 @@ def test(config, model_path: str):
         print(f"  Count: {len(tier_df)}")
         print(f"  Win Rate: {tier_win_rate:.3f}")
 
+    plot_test_results(df)
     env.close()
 
 if __name__ == "__main__":
 
-    APPROACH = 'ddqn_cnn'
+    APPROACH = 'ddqn_cnn_slippery'
     MODE = 'test'
 
     RENDER_TRAINING = False

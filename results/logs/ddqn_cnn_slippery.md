@@ -32,7 +32,7 @@ env:
   goal: 0.7
   hole: 0
   ice: 0
-  is_slippery: true
+  slip: [0.34, 0.33, 0.33]
   map_size: 4
 memory:
   batch_size: 64
