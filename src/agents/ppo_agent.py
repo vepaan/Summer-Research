@@ -94,7 +94,7 @@ class PPOAgent:
         for t in reversed(range(len(rewards))):
             next_non_terminal = 1.0 - dones[t]
             if t == len(rewards) - 1:
-                next_value = 0 # Bootstrap with 0 if it's the last state
+                next_value = 0 if dones[t] else values[t] # Bootstrap with 0 if it's the last state
             else:
                 next_value = values[t + 1]
             
@@ -105,8 +105,7 @@ class PPOAgent:
         
         # Only normalize advantages if the trajectory has more than one step to avoid division by zero.
         if len(self.memory) > 1:
-            #advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
-            pass
+            advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
 
         # PPO Update loop
         for _ in range(self.ppo_epochs):
@@ -124,6 +123,8 @@ class PPOAgent:
             # Clipped Surrogate Objective (Policy Loss)
             surr1 = ratio * advantages
             surr2 = torch.clamp(ratio, 1 - self.clip_epsilon, 1 + self.clip_epsilon) * advantages
+            
+            #gradient ascent here by minus
             policy_loss = -torch.min(surr1, surr2).mean()
 
             # Value Function Loss (Critic Loss)

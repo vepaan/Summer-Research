@@ -182,7 +182,7 @@ def test(config, model_path: str):
 if __name__ == "__main__":
 
     APPROACH = 'ddqn_cnn'
-    MODE = 'train'
+    MODE = 'test'
 
     RENDER_TRAINING = False
     RENDER_TESTING = False
