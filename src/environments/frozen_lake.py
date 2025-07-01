@@ -37,7 +37,7 @@ class FrozenLake(gym.Wrapper):
         self.prev_state = None
         self.compute_win_prob = compute_win_prob
         if self.compute_win_prob:
-            self.win_prob = approximate_win_probability(self.env.unwrapped.desc, self.config['env']['slip'])
+            self.win_prob = compute_win_probability(self.env.unwrapped.desc, self.config['env']['slip'])
         else:
             self.win_prob = -1
 
@@ -170,7 +170,7 @@ class FrozenLake(gym.Wrapper):
 
         #compute winning probability
         if self.compute_win_prob:
-            self.win_prob = approximate_win_probability(self.env.unwrapped.desc, self.config['env']['slip'])
+            self.win_prob = compute_win_probability(self.env.unwrapped.desc, self.config['env']['slip'])
         else:
             self.win_prob = -1
         #print(f"[INFO] Probability of winning: {self.win_prob:.4f}")

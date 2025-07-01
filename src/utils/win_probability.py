@@ -1,4 +1,7 @@
 import numpy as np
+import stormpy
+import stormpy.core
+import stormpy.builder as builder
 
 def compute_win_probability(desc: np.ndarray, slip: list[float]) -> float:
     size = desc.shape[0]
@@ -21,7 +24,13 @@ def compute_win_probability(desc: np.ndarray, slip: list[float]) -> float:
         3: [move[3], move[2], move[0]],  # UP → [UP, RIGHT, LEFT]
     }
 
-    P = np.zeros((num_states, num_states), dtype=np.float64)
+    builder_options = builder.SparseModelBuilderOptions()
+    model_builder = builder.SparseModelBuilder(builder_options, stormpy.storage.ModelType.MDP)
+    model_builder.set_number_of_states(num_states)
+
+    # Initial state is top-left
+    initial_state = to_state(0, 0)
+    model_builder.set_initial_state(initial_state)
 
     for i in range(size):
         for j in range(size):
@@ -29,43 +38,32 @@ def compute_win_probability(desc: np.ndarray, slip: list[float]) -> float:
             tile = desc[i][j]
 
             if tile == b'H' or tile == b'G':
-                P[s, s] = 1.0
+                # Terminal states (self-loop)
+                model_builder.add_transition(s, s, 1.0)
                 continue
 
-            # Choose one fixed action direction — for now assume DOWN (can generalize later)
-            intended_action = 1  # assume DOWN (you can parameterize this)
+            intended_action = 1  # DOWN (as before)
+            deltas = slip_deltas[intended_action]
 
-            for (dx, dy), prob in zip(slip_deltas[intended_action], slip):
+            for (dx, dy), prob in zip(deltas, slip):
                 ni, nj = i + dx, j + dy
                 if 0 <= ni < size and 0 <= nj < size:
                     s_next = to_state(ni, nj)
                 else:
-                    s_next = s  # hit wall → stay
+                    s_next = s  # Wall → stay in same state
+                model_builder.add_transition(s, s_next, prob)
 
-                P[s, s_next] += prob
+    model = model_builder.build()
 
-    # Solve: x[s] = sum P[s, s'] * x[s'] with x[goal] = 1
+    # Goal is bottom-right corner
     goal_state = to_state(size - 1, size - 1)
-    x = np.zeros(num_states, dtype=np.float64)
-    x[goal_state] = 1.0
 
-    eps = 1e-12
-    max_iter = 10000
-    for _ in range(max_iter):
-        x_new = np.zeros_like(x)
-        for s in range(num_states):
-            tile = desc[s // size][s % size]
-            if tile == b'G':
-                x_new[s] = 1.0
-            elif tile == b'H':
-                x_new[s] = 0.0
-            else:
-                x_new[s] = np.dot(P[s], x)
-        if np.linalg.norm(x_new - x, ord=np.inf) < eps:
-            break
-        x = x_new
+    # Define property: Pmax=? [ F goal ]
+    formula_str = f'Pmax=? [F s={goal_state}]'
+    formulas = stormpy.parse_properties(formula_str, model)
 
-    return x[0]
+    result = stormpy.model_checking(model, formulas[0])
+    return result.at(initial_state)
 
 
 def approximate_win_probability(desc: np.ndarray, slip: list[float]) -> float:
