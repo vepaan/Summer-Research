@@ -124,6 +124,8 @@ def test(config, model_path: str):
         agent = DDQNAgent(env.observation_space.shape[0], env.action_space.n, config, env, APPLY_SHIELD)
     elif config['agent']['rl_type'].lower() == 'ppo':
         agent = PPOAgent(env.observation_space.shape[0], env.action_space.n, config)
+    elif config['agent']['rl_type'].lower() == 'transformer':
+        agent = DDQNTransformerAgent(config['agent']['transformer']['input_dim'], env.action_space.n, config)
     else:
         raise ValueError("Unknown RL algorithm in test")
 
