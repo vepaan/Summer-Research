@@ -39,10 +39,11 @@ agent:
   learning_rate_ppo: 0.0003
 
   transformer:
+    input_dim: 36 #[4x3x3]
     seq_len: 10
-    d_model: 0
-    num_heads: 0
-    hidden_dim: 0
+    d_model: 128
+    num_heads: 4
+    hidden_dim: 256
 
   mlp:
     hidden_size: 128

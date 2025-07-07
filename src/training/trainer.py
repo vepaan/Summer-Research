@@ -169,3 +169,101 @@ class PPOTrainer:
 
         if report_name is not None and report_path is not None:
             Log(log_dir=report_path, log_name=report_name, config=self.config)
+
+
+
+class TransformerTrainer:
+
+    def __init__(self, agent, env, config: dict, render_mode: str = None, plot: bool = False):
+        self.agent = agent
+        self.env = env
+        self.config = config
+        self.render_mode = render_mode
+
+        self.seq_len = config['agent']['transformer']['seq_len']
+        self.num_episodes = config['training']['num_episodes']
+        self.max_steps_per_episode = config['training']['max_steps_per_episode']
+        self.log_interval = config['training']['log_interval']
+        self.target_update_freq = config['agent']['target_update_freq']
+        self.save_interval = config['training']['save_interval']
+        self.render_speed = config['training']['speed']
+
+        self.scores = []
+        self.scores_window = deque(maxlen=100)
+        self.live_plotter = LivePlotter() if plot else None
+
+    
+    def _plot(self, file_name, folder_path, data_path, data_name):
+        if self.live_plotter:
+            self.live_plotter.save(folder_path=folder_path, file_name=file_name)
+        else:
+            plot_rewards(self.scores, folder_path, file_name, data_path, data_name)
+
+
+    def _flatten_obs(self, obs):
+        return obs.reshape(-1) #shape (4, 3, 3) -> (36,)
+    
+
+    def run(self, policy_path=None, policy_name=None, plot_path=None, plot_name=None, data_path=None, data_name=None, report_path=None, report_name=None, shuffle_map=False):
+        for i_episode in tqdm(range(1, self.num_episodes+1), desc="Training Episodes"):
+            obs, info = self.env.reset(shuffle_map=shuffle_map)
+            score = 0
+
+            #Init sequence buffer with repeated first frame
+            obs_seq = deque([self._flatten_obs(obs)] * self.seq_len, maxlen=self.seq_len)
+
+            if self.render_mode == 'human':
+                self.env.render()
+                time.sleep(1/self.render_speed)
+
+            for _ in range(self.max_steps_per_episode):
+                # stack sequence to [T, 36]
+                state_stack = np.stack(obs_seq, axis=0)
+
+                action = self.agent.act(state_stack)
+                next_obs, reward, terminated, truncated, info = self.env.step(action)
+
+                #update sequence buffer
+                obs_seq.append(self._flatten_obs(next_obs))
+                next_state_stack = np.stack(obs_seq, axis=0)
+
+                if self.render_mode == 'human':
+                    self.env.render()
+                    time.sleep(1/self.render_speed)
+
+                done = terminated or truncated
+                self.agent.memory.push(state_stack, action, reward, next_state_stack, done)
+                self.agent.learn()
+                score += reward
+
+                if done:
+                    break
+
+            self.scores_window.append(score)
+            self.scores.append(score)
+
+            if i_episode % self.log_interval == 0:
+                avg = np.mean(self.scores_window)
+                print(f'\rEpisode {i_episode}\tAverage Score (last 100): {avg:.2f}')
+
+            #periodically updaing and saving
+            if i_episode % self.target_update_freq == 0:
+                self.agent.update_action_net()
+            if i_episode % self.save_interval == 0:
+                if policy_name is not None and policy_path is not None:
+                    self.agent.save(file_name=policy_name, folder_path=policy_path)
+
+            if self.live_plotter:
+                self.live_plotter.update(self.scores)
+
+        print("\nTraining Finished")
+        print(f'Final average score of last 100 eps: {np.mean(self.scores_window):.2f}')
+
+        if policy_name is not None and policy_path is not None:
+            self.agent.save(file_name=policy_name, folder_path=policy_path)
+        
+        if plot_name is not None and plot_path is not None and data_path is not None and data_name is not None:
+            self._plot(file_name=plot_name, folder_path=plot_path, data_path=data_path, data_name=data_name)
+        
+        if report_name is not None and report_path is not None:
+            Log(log_dir=report_path, log_name=report_name, config=self.config)

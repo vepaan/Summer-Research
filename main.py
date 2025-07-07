@@ -7,7 +7,8 @@ from tqdm import tqdm
 from src.environments.frozen_lake import FrozenLake
 from src.agents.ddqn_agent import DDQNAgent
 from src.agents.ppo_agent import PPOAgent
-from src.training.trainer import DDQNTrainer, PPOTrainer
+from src.agents.ddqn_transformer_agent import DDQNTransformerAgent
+from src.training.trainer import DDQNTrainer, PPOTrainer, TransformerTrainer
 from src.utils.plotter import plot_test_results
 
 
@@ -71,6 +72,22 @@ def train(config, render_mode=None):
             agent=agent,
             env=env,
             config=config,
+            render_mode=render_mode,
+            plot=False
+        )
+
+    elif config['agent']['rl_type'].lower() == 'transformer':
+
+        agent = DDQNTransformerAgent(
+            state_size=config['agent']['transformer']['input_dim'],
+            action_size=env.action_space.n,
+            config=config
+        )
+
+        trainer = TransformerTrainer(
+            agent=agent, 
+            env=env, 
+            config=config, 
             render_mode=render_mode,
             plot=False
         )
