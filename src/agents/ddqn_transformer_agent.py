@@ -65,7 +65,7 @@ class DDQNTransformerAgent:
 
 
     def _process_sequence(self, state: np.ndarray):
-        obs_tensor = torch.tensor(np.array(state), type=torch.float32) # (T, C, 3, 3)
+        obs_tensor = torch.tensor(np.array(state), dtype=torch.float32) # (T, C, 3, 3)
         obs_tensor = obs_tensor.view(len(state), -1) # (T, C*3*3)
         return obs_tensor.unsqueeze(0).to(self.device) # (1, T, D)
 
