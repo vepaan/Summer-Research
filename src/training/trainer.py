@@ -198,10 +198,6 @@ class TransformerTrainer:
             self.live_plotter.save(folder_path=folder_path, file_name=file_name)
         else:
             plot_rewards(self.scores, folder_path, file_name, data_path, data_name)
-
-
-    def _flatten_obs(self, obs):
-        return obs.reshape(-1) #shape (4, 3, 3) -> (36,)
     
 
     def run(self, policy_path=None, policy_name=None, plot_path=None, plot_name=None, data_path=None, data_name=None, report_path=None, report_name=None, shuffle_map=False):

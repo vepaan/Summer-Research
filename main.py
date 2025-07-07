@@ -3,6 +3,7 @@ import numpy as np
 import time
 import pandas as pd
 from tqdm import tqdm
+from collections import deque
 
 from src.environments.frozen_lake import FrozenLake
 from src.agents.ddqn_agent import DDQNAgent
@@ -142,20 +143,35 @@ def test(config, model_path: str):
     test_records = []
     wins = 0
 
+    def flatten_obs(obs):
+        return obs.reshape(-1) #shape (4, 3, 3) -> (36,)
+
     for _ in tqdm(range(num_test_episodes), desc="Testing Episodes"):
         state, _ = env.reset(shuffle_map=SHUFFLE_TEST_MAP)
         map_difficulty = env.win_prob
         won = False
         done = False
         episode_reward = 0
+
+        if config['agent']['rl_type'].lower() == 'transformer':
+            seq_len = config['agent']['transformer']['seq_len']
+            obs_seq = deque([flatten_obs(state)] * seq_len, maxlen=seq_len)
         
         if RENDER_TESTING:
             env.render()
             time.sleep(1)
 
         while not done:
-            action = agent.act(state, evaluation_mode=True)
+            if config['agent']['rl_type'].lower() == 'transformer':
+                state_seq = np.stack(obs_seq, axis=0)  # Shape: (seq_len, 36)
+                action = agent.act(state_seq, evaluation_mode=True)
+            else:
+                action = agent.act(state, evaluation_mode=True)
+
             next_state, reward, terminated, truncated, _ = env.step(action)
+
+            if config['agent']['rl_type'].lower() == 'transformer':
+                obs_seq.append(flatten_obs(next_state))
             state = next_state
             episode_reward += reward
 
@@ -207,7 +223,7 @@ def test(config, model_path: str):
 if __name__ == "__main__":
 
     APPROACH = 'pomdp'
-    MODE = 'train'
+    MODE = 'test'
 
     RENDER_TRAINING = False
     RENDER_TESTING = False
