@@ -210,7 +210,7 @@ class TransformerTrainer:
             score = 0
 
             #Init sequence buffer with repeated first frame
-            obs_seq = deque([self._flatten_obs(obs)] * self.seq_len, maxlen=self.seq_len)
+            obs_seq = deque([obs] * self.seq_len, maxlen=self.seq_len)
 
             if self.render_mode == 'human':
                 self.env.render()
@@ -224,7 +224,7 @@ class TransformerTrainer:
                 next_obs, reward, terminated, truncated, info = self.env.step(action)
 
                 #update sequence buffer
-                obs_seq.append(self._flatten_obs(next_obs))
+                obs_seq.append(next_obs)
                 next_state_stack = np.stack(obs_seq, axis=0)
 
                 if self.render_mode == 'human':

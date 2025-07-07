@@ -17,7 +17,7 @@ reward:
 
 agent:
   # DDQN or PPO
-  rl_type: DDQN
+  rl_type: transformer
 
   # MLP or CNN
   model_type: CNN
