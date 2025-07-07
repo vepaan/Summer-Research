@@ -38,12 +38,15 @@ agent:
   gamma_ppo: 0.99
   learning_rate_ppo: 0.0003
 
+  transformer:
+    seq_len: 10
+
   mlp:
     hidden_size: 128
 
   cnn:
     hidden_size: 512
-    input_shape: [4, 4, 4] #[channels, height, width]
+    input_shape: [4, 3, 3] #[channels, height, width]
     conv_channels: 16
 
 env:

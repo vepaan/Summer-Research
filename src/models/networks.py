@@ -88,5 +88,10 @@ class CNN(BaseNet):
         x = torch.flatten(x, 1)
         x = F.relu(self.fc1(x))
         return self.fc2(x)
+    
+
+class TransformerNetwork(BaseNet):
+    def __init__(self):
+        pass
 
 

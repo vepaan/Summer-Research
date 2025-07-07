@@ -183,8 +183,8 @@ class FrozenLake(gym.Wrapper):
         if self.config['agent']['model_type'] == 'MLP':
             return self._full_state(observation), info
         elif self.config['agent']['model_type'] == 'CNN':
-            return self._cnn_state(observation), info
-            #return self._partial_cnn_state(), info
+            #return self._cnn_state(observation), info
+            return self._partial_cnn_state(), info
         else:
             raise ValueError("Unknown model type in yaml")
     
@@ -220,8 +220,8 @@ class FrozenLake(gym.Wrapper):
         if self.config['agent']['model_type'] == 'MLP':
             observation = self._full_state(observation)
         elif self.config['agent']['model_type'] == 'CNN':
-            observation = self._cnn_state(observation)
-            #observation = self._partial_cnn_state()
+            #observation = self._cnn_state(observation)
+            observation = self._partial_cnn_state()
         else:
             raise ValueError("Unknown model type in yaml")
 
