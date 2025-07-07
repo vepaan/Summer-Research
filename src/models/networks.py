@@ -91,7 +91,41 @@ class CNN(BaseNet):
     
 
 class TransformerNetwork(BaseNet):
-    def __init__(self):
-        pass
 
+    def __init__(self, input_dim, seq_len, d_model, num_heads, hidden_dim, num_actions, device='cpu'):
+        super().__init__(device)
+
+        self.seq_len = seq_len
+        self.input_dim = input_dim
+        self.d_model = d_model
+        self.num_actions = num_actions
+
+        # Positional encoding (learnable)
+        self.pos_embedding = nn.Parameter(torch.randn(1, seq_len, d_model))
+
+        # Project input vector to d_model
+        self.input_proj = nn.Linear(input_dim, d_model)
+
+        #encoder
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=d_model,
+            nhead=num_heads,
+            dim_feedforward=hidden_dim,
+            batch_first=True
+        )
+
+        self.transformer_encoder = nn.TransformerEncoder(encoder_layer, num_layers=1)
+
+        # Final MLP to get Q-values from last token
+        self.fc_out = nn.Linear(d_model, num_actions)
+
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        # x: [B, T, input_dim]
+        x = self.input_proj(x) # → [B, T, d_model]
+        x = x + self.pos_embedding[:, :x.size(1)] # Add position info
+        x = self.transformer_encoder(x) # → [B, T, d_model]
+        x_last = x[:, -1, :] # Take final token's output
+        q_values = self.fc_out(x_last) # → [B, num_actions]
+        return q_values
 

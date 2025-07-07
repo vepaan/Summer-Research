@@ -40,6 +40,9 @@ agent:
 
   transformer:
     seq_len: 10
+    d_model: 0
+    num_heads: 0
+    hidden_dim: 0
 
   mlp:
     hidden_size: 128
